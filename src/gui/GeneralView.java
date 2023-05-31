@@ -15,6 +15,9 @@ public class GeneralView extends JPanel {
     private JButton tourEdit = new JButton("Tour Edit");
     private JButton guideEdit = new JButton("Guide Edit");
     private JButton tourCompanyEdit = new JButton("Tour Company Edit");
+    private JTextField query_text_field=new JTextField();
+
+    private  JButton special_query= new JButton("Special Query");
     private JButton back = new JButton("Back");
 
     private JPanel btnPanel = new JPanel(new GridLayout(20, 1, 10, 5));
@@ -23,6 +26,8 @@ public class GeneralView extends JPanel {
 
     public GeneralView(JPanel backPanel) {
         setActionListeners();
+        query_text_field.setPreferredSize(new Dimension(300,30));
+        query_text_field.setToolTipText("Enter your query here");
         addButtonsToView();
         this.add(btnPanel);
         setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -38,6 +43,8 @@ public class GeneralView extends JPanel {
         btnPanel.add(tourEdit);
         btnPanel.add(guideEdit);
         btnPanel.add(tourCompanyEdit);
+        btnPanel.add(query_text_field);
+        btnPanel.add(special_query);
         btnPanel.add(back);
     }
 
@@ -97,7 +104,13 @@ public class GeneralView extends JPanel {
                 // Perform action for tourCompanyEdit button in GeneralView
             }
         });
-
+        special_query.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String query = query_text_field.getText();
+                System.out.println("QUERY : "+query);
+            }
+        });
         back.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
