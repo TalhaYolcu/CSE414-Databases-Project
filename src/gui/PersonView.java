@@ -1,16 +1,15 @@
 package gui;
 
-import constants.CONSTANTS;
 import db.TravelBookingConnection;
-import models.TableModel;
+import listeners.BusListener;
+import listeners.CarRentalListener;
+import listeners.FlightListener;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 public class PersonView extends JPanel{
@@ -36,6 +35,13 @@ public class PersonView extends JPanel{
     private Statement st=null;
 
     public PersonView(JPanel backPanel) {
+        try {
+            st = TravelBookingConnection.getConnection().createStatement();
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         setActionListeners();
         query_text_field.setPreferredSize(new Dimension(300,30));
         query_text_field.setToolTipText("Enter your query here");
@@ -44,13 +50,6 @@ public class PersonView extends JPanel{
         setBorder(new EmptyBorder(5, 5, 5, 5));
         this.backPanel=backPanel;
 
-
-        try {
-            st = TravelBookingConnection.getConnection().createStatement();
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
 
 
     }
@@ -74,149 +73,10 @@ public class PersonView extends JPanel{
 
     private void setActionListeners() {
 
-        flights.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        flights.addActionListener(new FlightListener(btnPanel,this,st));
 
-                btnPanel.setVisible(false);
-                JCheckBox flight_id=new JCheckBox(CONSTANTS.FLIGHT_TABLE.flight_id);
-                JCheckBox departure_p=new JCheckBox(CONSTANTS.FLIGHT_TABLE.departure_p);
-                JCheckBox aperture_p=new JCheckBox(CONSTANTS.FLIGHT_TABLE.aperture_p);
-                JCheckBox departure_t=new JCheckBox(CONSTANTS.FLIGHT_TABLE.departure_t);
-                JCheckBox aperture_t=new JCheckBox(CONSTANTS.FLIGHT_TABLE.aperture_t);
-                JCheckBox capacity=new JCheckBox(CONSTANTS.FLIGHT_TABLE.capacity);
-                JCheckBox price=new JCheckBox(CONSTANTS.FLIGHT_TABLE.price);
-                JCheckBox spare_place=new JCheckBox(CONSTANTS.FLIGHT_TABLE.spare_place);
-                JButton okButton=new JButton("OK");
-                JButton backB=new JButton("Back");
-                JPanel checkboxPanel = new JPanel();
-                checkboxPanel.add(flight_id);
-                checkboxPanel.add(departure_p);
-                checkboxPanel.add(aperture_p);
-                checkboxPanel.add(departure_t);
-                checkboxPanel.add(aperture_t);
-                checkboxPanel.add(capacity);
-                checkboxPanel.add(price);
-                checkboxPanel.add(spare_place);
-                checkboxPanel.add(okButton);
-                checkboxPanel.add(backB);
-                PersonView.this.add(checkboxPanel);
-
-                backB.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        btnPanel.setVisible(true);
-                        checkboxPanel.setVisible(false);
-                    }
-                });
-
-
-                okButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-
-                        checkboxPanel.setVisible(false);
-
-                        String columns="";
-                        if (flight_id.isSelected()) {
-                            columns += CONSTANTS.FLIGHT_TABLE.flight_id + ",";
-                        }
-                        // Add other flight table elements similarly
-                        if (departure_p.isSelected()) {
-                            columns += CONSTANTS.FLIGHT_TABLE.departure_p + ",";
-                        }
-
-                        if (aperture_p.isSelected()) {
-                            columns += CONSTANTS.FLIGHT_TABLE.aperture_p + ",";
-                        }
-
-                        if (departure_t.isSelected()) {
-                            columns += CONSTANTS.FLIGHT_TABLE.departure_t + ",";
-                        }
-
-                        if (aperture_t.isSelected()) {
-                            columns += CONSTANTS.FLIGHT_TABLE.aperture_t + ",";
-                        }
-
-                        if (capacity.isSelected()) {
-                            columns += CONSTANTS.FLIGHT_TABLE.capacity + ",";
-                        }
-
-                        if (price.isSelected()) {
-                            columns += CONSTANTS.FLIGHT_TABLE.price + ",";
-                        }
-
-                        if (spare_place.isSelected()) {
-                            columns += CONSTANTS.FLIGHT_TABLE.spare_place + ",";
-                        }
-
-                        if(columns.length()==0) {
-                            columns += "*";
-                        }
-                        else {
-                            columns = columns.substring(0,columns.length()-1);
-                        }
-                        try {
-
-                            String query = "select "+columns+" from flights";
-                            System.out.println("QUERY : "+query);
-
-                            ResultSet rs = st.executeQuery(query);
-
-                            JTable table = new JTable(TableModel.buildTableModel(rs));
-                            JButton backToBox= new JButton("Back");
-
-                            JScrollPane scrollPane = new JScrollPane(table);
-                            JPanel scrollPanel = new JPanel();
-                            scrollPanel.add(scrollPane);
-
-
-
-                            PersonView.this.add(scrollPane);
-                            PersonView.this.add(backToBox);
-                            PersonView.this.repaint();
-
-                            backToBox.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-
-                                    scrollPanel.setVisible(false);
-                                    scrollPane.setVisible(false);
-                                    checkboxPanel.setVisible(true);
-                                    backToBox.setVisible(false);
-                                    PersonView.this.repaint();
-
-
-                                }
-                            });
-
-                        } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-
-
-                    }
-                });
-
-
-
-
-            }
-        });
-
-        bus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        car_rental.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
+        bus.addActionListener(new BusListener(btnPanel,this,st));
+        car_rental.addActionListener(new CarRentalListener(btnPanel,this,st));
         hotels.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
