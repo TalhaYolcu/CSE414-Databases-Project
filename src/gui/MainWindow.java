@@ -21,11 +21,12 @@ public class MainWindow extends JFrame{
     public MainWindow() {
         // Create the main panel
         mainPanel.setBorder(new EmptyBorder(2, 3, 2, 3));
+        mainPanel.setPreferredSize(new Dimension(900,900));
 
         setContentPane(mainPanel);
 
         setTitle("Travel Booking System");
-        setSize(800,800);
+        setSize(900,900);
         setVisible(true);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

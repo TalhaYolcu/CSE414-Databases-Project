@@ -18,6 +18,7 @@ public class CONSTANTS {
         public static String tour="tour";
         public static String tour_company="tour_company";
         public static String transport = "transport";
+        public static String rental = "rental";
 
     }
 
@@ -48,6 +49,67 @@ public class CONSTANTS {
         public static String daily_price="daily_price";
         public static String start_date="start_date";
         public static String end_date="end_date";
+
+    }
+    public static class HOTEL_TABLE {
+        public static String hotel_id="hotel_id";
+        public static String hotel_name="hotel_name";
+        public static String location = "location";
+    }
+    public static class TOUR_TABLE {
+        public static String tour_id="tour_id";
+        public static String person_id ="person_id";
+        public static String transport_id="transport_id";
+        public static String acc_id="acc_id";
+        public static String capacity="capacity";
+        public static String tot_price="tot_price";
+        public static String company_id = "company_id";
+        public static String guide_id = "guide_id";
+
+    }
+    public static class GUIDE_TABLE  {
+        public static String guide_id = "guide_id";
+        public static String person_id = "person_id";
+        public static String company_id = "company_id";
+        public static String company_name = "company_name";
+        public static String tot_guide = "tot_guide";
+    }
+    public static class TOUR_COMPANY_TABLE {
+        public static String company_id = "company_id";
+        public static String company_name = "company_name";
+    }
+    public static class TRANSPORT_TABLE {
+        public static String transport_id = "transport_id";
+        public static String person_id = "person_id";
+        public static String transport_type = "transport_type";
+        public static String respective_id = "respective_id";
+    }
+    public static class PERSON_TABLE {
+        public static String person_id = "person_id";
+        public static String name = "name";
+        public static String age = "age";
+        public static String budget = "budget";
+    }
+    public static class RENTAL_TABLE {
+        public static String rental_id = "rental_id";
+        public static String person_id = "person_id";
+        public static String car_id = "car_id";
+        public static String company_id = "company_id";
+    }
+    public static class ACCOMODATION_TABLE {
+        public static String acc_id = "acc_id";
+        public static String hotel_id = "hotel_id";
+        public static String room_id = "room_id";
+        public static String person_id = "person_id";
+    }
+    public static class ROOMS_TABLE {
+        public static String hotel_id = "hotel_id";
+        public static String room_id = "room_id";
+        public static String room_properties = "room_properties";
+        public static String room_cap = "room_cap";
+        public static String daily_price = "daily_price";
+        public static String check_in_date = "check_in_date";
+        public static String check_out_date = "check_out_date";
 
     }
 

@@ -3,6 +3,7 @@ package listeners;
 import models.TableModel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
@@ -19,24 +20,18 @@ public abstract  class MyListener {
         FlightListener.upperPanel=upperPanel;
         FlightListener.st=st;
     }
-    protected static void getQuery(String columns, JPanel checkboxPanel,String table_name) {
-        if(columns.length()==0) {
-            columns += "*";
-        }
-        else {
-            columns = columns.substring(0,columns.length()-1);
-        }
+
+    protected static void executeQuery(String query, JPanel[] panels) throws SQLException {
+
         try {
-
-            String query = "select "+columns+" from "+table_name;
-            System.out.println("QUERY : "+query);
-
             ResultSet rs = st.executeQuery(query);
 
             JTable table = new JTable(TableModel.buildTableModel(rs));
+            table.setPreferredSize(new Dimension(700,700));
             JButton backToBox= new JButton("Back");
 
             JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setPreferredSize(new Dimension(700,700));
             JPanel scrollPanel = new JPanel();
             scrollPanel.add(scrollPane);
 
@@ -50,11 +45,34 @@ public abstract  class MyListener {
 
                     scrollPanel.setVisible(false);
                     scrollPane.setVisible(false);
-                    checkboxPanel.setVisible(true);
+                    for (JPanel panel : panels) {
+                        panel.setVisible(true);
+                    }
                     backToBox.setVisible(false);
                     upperPanel.repaint();
                 }
             });
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
+
+    }
+
+    protected static void getQuery(String columns, JPanel checkboxPanel,String table_name) {
+        if(columns.length()==0) {
+            columns += "*";
+        }
+        else {
+            columns = columns.substring(0,columns.length()-1);
+        }
+        try {
+
+            String query = "select "+columns+" from "+table_name;
+            System.out.println("QUERY : "+query);
+
+            executeQuery(query, new JPanel[]{checkboxPanel});
 
         } catch (SQLException ex) {
             throw new RuntimeException(ex);

@@ -1,9 +1,7 @@
 package gui;
 
 import db.TravelBookingConnection;
-import listeners.BusListener;
-import listeners.CarRentalListener;
-import listeners.FlightListener;
+import listeners.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -26,7 +24,7 @@ public class PersonView extends JPanel{
     private JButton hotel_history=new JButton("Hotel history");
     private JButton tour_history=new JButton("Tour history");
     private JTextField query_text_field=new JTextField();
-    private  JButton special_query= new JButton("Special Query");
+    private JButton special_query= new JButton("Special Query");
     private JButton back=new JButton("Back");
 
     private JPanel btnPanel = new JPanel(new GridLayout(20, 1, 10, 5));
@@ -50,8 +48,6 @@ public class PersonView extends JPanel{
         setBorder(new EmptyBorder(5, 5, 5, 5));
         this.backPanel=backPanel;
 
-
-
     }
     private void addButtonsToView() {
         btnPanel.add(flights);
@@ -74,65 +70,18 @@ public class PersonView extends JPanel{
     private void setActionListeners() {
 
         flights.addActionListener(new FlightListener(btnPanel,this,st));
-
         bus.addActionListener(new BusListener(btnPanel,this,st));
         car_rental.addActionListener(new CarRentalListener(btnPanel,this,st));
-        hotels.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        hotels.addActionListener(new HotelListener(btnPanel,this,st));
+        tours.addActionListener(new TourListener(btnPanel, this, st));
+        guides.addActionListener(new GuideListener(btnPanel, this, st));
+        tour_companies.addActionListener(new TourCompanyListener(btnPanel, this, st));
+        flight_history.addActionListener(new FlightHistoryListener(btnPanel, this, st));
+        bus_history.addActionListener(new BusHistoryListener(btnPanel, this, st));
+        car_rental_history.addActionListener(new CarRentalHistoryListener(btnPanel, this, st));
+        hotel_history.addActionListener(new HotelHistoryListener(btnPanel, this, st));
+        tour_history.addActionListener(new TourHistoryListener(btnPanel, this, st));
 
-            }
-        });
-        tours.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
-        guides.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
-        tour_companies.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        flight_history.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        bus_history.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        car_rental_history.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        hotel_history.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-        tour_history.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
         special_query.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

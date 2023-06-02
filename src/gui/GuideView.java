@@ -1,7 +1,7 @@
 package gui;
 
 import db.TravelBookingConnection;
-import listeners.FlightListener;
+import listeners.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -54,37 +54,10 @@ public class GuideView extends JPanel {
 
     private void setActionListeners() {
         flights.addActionListener(new FlightListener(btnPanel,this,st));
-
-        bus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Perform action for bus button in GuideView
-            }
-        });
-
-        hotels.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Perform action for hotels button in GuideView
-            }
-        });
-
-        tours.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Perform action for tours button in GuideView
-            }
-        });
-
-
-
-        tour_companies.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Perform action for tour_companies button in GuideView
-            }
-        });
-
+        bus.addActionListener(new BusListener(btnPanel,this,st));
+        hotels.addActionListener(new HotelListener(btnPanel,this,st));
+        tours.addActionListener(new TourListener(btnPanel, this, st));
+        tour_companies.addActionListener(new TourCompanyListener(btnPanel, this, st));
 
         special_query.addActionListener(new ActionListener() {
             @Override
