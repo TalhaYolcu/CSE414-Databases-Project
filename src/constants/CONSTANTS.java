@@ -1,10 +1,14 @@
 package constants;
 
+import javax.swing.plaf.PanelUI;
+import java.security.PublicKey;
+
 public class CONSTANTS {
     public static final String MYSQL_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
     public static String MYSQL_URL="jdbc:mysql://localhost:3306/travel_booking";
     public static String MYSQL_USERNAME="root";
     public static String MYSQL_PASSWORD="root";
+    public static String DB_NAME="travel_booking";
 
     public static class TABLE_NAMES {
         public static String accomodation="accomodation";
@@ -31,6 +35,10 @@ public class CONSTANTS {
         public static String capacity = "capacity";
         public static String price = "price";
         public static String spare_place = "spare_place";
+        public static int column_count=8;
+        public static String[] column_names=new String[]{
+          flight_id,departure_p,aperture_p,departure_t,aperture_t,capacity,price,spare_place
+        };
 
     }
     public static class BUS_TRIP_TABLE {
@@ -101,6 +109,8 @@ public class CONSTANTS {
         public static String hotel_id = "hotel_id";
         public static String room_id = "room_id";
         public static String person_id = "person_id";
+        public static int column_count=4;
+        public static String[] column_names=new String[]{acc_id,hotel_id,room_id,person_id};
     }
     public static class ROOMS_TABLE {
         public static String hotel_id = "hotel_id";
@@ -111,6 +121,11 @@ public class CONSTANTS {
         public static String check_in_date = "check_in_date";
         public static String check_out_date = "check_out_date";
 
+    }
+    public static class OPERATIONS {
+        public static String insert="Insert";
+        public static String delete="Delete";
+        public static String edit = "Edit";
     }
 
 }

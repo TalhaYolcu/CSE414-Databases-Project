@@ -1,20 +1,30 @@
 package gui;
 
+import constants.CONSTANTS;
+import db.TravelBookingConnection;
+import listeners.AccomodationEditListener;
+import listeners.FlightEditListener;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Statement;
 
 public class GeneralView extends JPanel {
-    private JButton personEdit = new JButton("Person Edit");
-    private JButton flightEdit = new JButton("Flight Edit");
+    private JButton accomodationEdit = new JButton("Accomodation Edit");
     private JButton busEdit = new JButton("Bus Edit");
     private JButton carRentalEdit = new JButton("Car Rental Edit");
-    private JButton hotelEdit = new JButton("Hotel Edit");
-    private JButton tourEdit = new JButton("Tour Edit");
+    private JButton flightEdit = new JButton("Flight Edit");
     private JButton guideEdit = new JButton("Guide Edit");
+    private JButton hotelEdit = new JButton("Hotel Edit");
+    private JButton personEdit = new JButton("Person Edit");
+    private JButton rentalEdit = new JButton("Rental Edit");
+    private JButton roomEdit = new JButton("Room Edit");
+    private JButton tourEdit = new JButton("Tour Edit");
     private JButton tourCompanyEdit = new JButton("Tour Company Edit");
+    private JButton transportEdit = new JButton("Transport Edit");
     private JTextField query_text_field=new JTextField();
 
     private  JButton special_query= new JButton("Special Query");
@@ -23,32 +33,48 @@ public class GeneralView extends JPanel {
     private JPanel btnPanel = new JPanel(new GridLayout(20, 1, 10, 5));
 
     private JPanel backPanel;
+    private Statement st=null;
+
 
     public GeneralView(JPanel backPanel) {
+        try {
+            st = TravelBookingConnection.getConnection().createStatement();
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         setActionListeners();
         query_text_field.setPreferredSize(new Dimension(300,30));
         query_text_field.setToolTipText("Enter your query here");
         addButtonsToView();
         this.add(btnPanel);
         setBorder(new EmptyBorder(5, 5, 5, 5));
-        this.backPanel = backPanel;
+        this.backPanel=backPanel;
     }
 
     private void addButtonsToView() {
-        btnPanel.add(personEdit);
-        btnPanel.add(flightEdit);
+        btnPanel.add(accomodationEdit);
         btnPanel.add(busEdit);
         btnPanel.add(carRentalEdit);
-        btnPanel.add(hotelEdit);
-        btnPanel.add(tourEdit);
+        btnPanel.add(flightEdit);
         btnPanel.add(guideEdit);
+        btnPanel.add(hotelEdit);
+        btnPanel.add(personEdit);
+        btnPanel.add(rentalEdit);
+        btnPanel.add(roomEdit);
+        btnPanel.add(tourEdit);
         btnPanel.add(tourCompanyEdit);
+        btnPanel.add(transportEdit);
         btnPanel.add(query_text_field);
         btnPanel.add(special_query);
         btnPanel.add(back);
     }
 
     private void setActionListeners() {
+
+        accomodationEdit.addActionListener(new AccomodationEditListener(btnPanel,this,st));
+
         personEdit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -56,12 +82,7 @@ public class GeneralView extends JPanel {
             }
         });
 
-        flightEdit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Perform action for flightEdit button in GeneralView
-            }
-        });
+        flightEdit.addActionListener(new FlightEditListener(btnPanel,this,st));
 
         busEdit.addActionListener(new ActionListener() {
             @Override

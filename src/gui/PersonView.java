@@ -8,7 +8,9 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.sql.Statement;
+
 
 public class PersonView extends JPanel{
     private JButton flights=new JButton("Flights");
@@ -81,14 +83,7 @@ public class PersonView extends JPanel{
         car_rental_history.addActionListener(new CarRentalHistoryListener(btnPanel, this, st));
         hotel_history.addActionListener(new HotelHistoryListener(btnPanel, this, st));
         tour_history.addActionListener(new TourHistoryListener(btnPanel, this, st));
-
-        special_query.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String query = query_text_field.getText();
-                System.out.println("QUERY : "+query);
-            }
-        });
+        special_query.addActionListener(new SpecialQueryListener(btnPanel,this,st,query_text_field));
         back.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

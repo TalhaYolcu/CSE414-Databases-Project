@@ -58,14 +58,8 @@ public class GuideView extends JPanel {
         hotels.addActionListener(new HotelListener(btnPanel,this,st));
         tours.addActionListener(new TourListener(btnPanel, this, st));
         tour_companies.addActionListener(new TourCompanyListener(btnPanel, this, st));
+        special_query.addActionListener(new SpecialQueryListener(btnPanel,this,st,query_text_field));
 
-        special_query.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String query = query_text_field.getText();
-                System.out.println("QUERY : "+query);
-            }
-        });
         back.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
