@@ -1,6 +1,5 @@
 package main;
 
-import constants.CONSTANTS;
 import db.TravelBookingConnection;
 import gui.MainWindow;
 

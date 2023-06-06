@@ -5,12 +5,12 @@ import interfaces.ModelInterface;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class TourCompany implements ModelInterface<TourCompany> {
+public class Company implements ModelInterface<Company> {
 
     private int company_id;
     private String company_name;
 
-    public TourCompany() {
+    public Company() {
     }
 
     public int getCompany_id() {
@@ -29,14 +29,14 @@ public class TourCompany implements ModelInterface<TourCompany> {
         this.company_name = company_name;
     }
 
-    public TourCompany(int company_id, String company_name) {
+    public Company(int company_id, String company_name) {
         this.company_id = company_id;
         this.company_name = company_name;
     }
 
     @Override
-    public TourCompany exportTableInstance(ResultSet rs) throws SQLException {
-        return new TourCompany(
+    public Company exportTableInstance(ResultSet rs) throws SQLException {
+        return new Company(
                 rs.getInt("company_id"),
                 rs.getString("company_name")
         );
@@ -44,37 +44,37 @@ public class TourCompany implements ModelInterface<TourCompany> {
 
     @Override
     public String getSelectQuery(int id) {
-        return "SELECT * FROM tour_guide WHERE company_id = " + id;
+        return "SELECT * FROM company WHERE company_id = " + id;
     }
 
     @Override
     public String getSelectAllQuery() {
-        return "SELECT * FROM tour_guide";
+        return "SELECT * FROM company";
     }
 
     @Override
     public String getDeleteQuery(int id) {
-        return "DELETE FROM tour_guide WHERE company_id = " + id;
+        return "DELETE FROM company WHERE company_id = " + id;
     }
 
     @Override
     public String getDeleteAllQuery() {
-        return "DELETE FROM tour_guide";
+        return "DELETE FROM company";
     }
 
     @Override
-    public String getInsertQuery(TourCompany object) {
-        return "INSERT INTO tour_guide (company_id, company_name) VALUES (" +
-                object.getCompany_id() + "," +
-                "'" + object.getCompany_name() + "'" +
+    public String getInsertQuery(Company object) {
+        return "INSERT INTO company (company_id, company_name) VALUES (" +
+                "'" + object.getCompany_id() + "'," +
+                "'" + object.getCompany_name() +
                 ")";
     }
 
     @Override
-    public String getUpdateQuery(TourCompany object, int id) {
-        return "UPDATE tour_guide SET " +
-                "company_id = " + object.getCompany_id() + ", " +
-                "company_name = '" + object.getCompany_name() + "' " +
-                "WHERE company_id = " + id;
+    public String getUpdateQuery(Company object, int id) {
+        return "UPDATE company SET " +
+                "company_id = '" + object.getCompany_id() + "', " +
+                "company_name = '" + object.getCompany_name() +
+                " WHERE company_id = " + id;
     }
 }

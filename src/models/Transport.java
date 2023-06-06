@@ -8,9 +8,10 @@ import java.sql.SQLException;
 public class Transport implements ModelInterface<Transport> {
 
     private int transport_id;
+    private int company_id;
+    private int respective_id;
     private int person_id;
     private String transport_type;
-    private int respective_id;
 
     public Transport() {
     }
@@ -21,6 +22,22 @@ public class Transport implements ModelInterface<Transport> {
 
     public void setTransport_id(int transport_id) {
         this.transport_id = transport_id;
+    }
+
+    public int getCompany_id() {
+        return company_id;
+    }
+
+    public void setCompany_id(int company_id) {
+        this.company_id = company_id;
+    }
+
+    public int getRespective_id() {
+        return respective_id;
+    }
+
+    public void setRespective_id(int respective_id) {
+        this.respective_id = respective_id;
     }
 
     public int getPerson_id() {
@@ -39,28 +56,22 @@ public class Transport implements ModelInterface<Transport> {
         this.transport_type = transport_type;
     }
 
-    public int getRespective_id() {
-        return respective_id;
-    }
-
-    public void setRespective_id(int respective_id) {
-        this.respective_id = respective_id;
-    }
-
-    public Transport(int transport_id, int person_id, String transport_type, int respective_id) {
+    public Transport(int transport_id, int company_id, int respective_id, int person_id, String transport_type) {
         this.transport_id = transport_id;
+        this.company_id = company_id;
+        this.respective_id = respective_id;
         this.person_id = person_id;
         this.transport_type = transport_type;
-        this.respective_id = respective_id;
     }
 
     @Override
     public Transport exportTableInstance(ResultSet rs) throws SQLException {
         return new Transport(
                 rs.getInt("transport_id"),
+                rs.getInt("company_id"),
+                rs.getInt("respective_id"),
                 rs.getInt("person_id"),
-                rs.getString("transport_type"),
-                rs.getInt("respective_id")
+                rs.getString("transport_type")
         );
     }
 
@@ -86,11 +97,12 @@ public class Transport implements ModelInterface<Transport> {
 
     @Override
     public String getInsertQuery(Transport object) {
-        return "INSERT INTO transport (transport_id, person_id, transport_type, respective_id) VALUES (" +
+        return "INSERT INTO transport (transport_id, company_id, respective_id, person_id, transport_type) VALUES (" +
                 "'" + object.getTransport_id() + "'," +
+                "'" + object.getCompany_id() + "'," +
+                "'" + object.getRespective_id() + "'," +
                 "'" + object.getPerson_id() + "'," +
-                "'" + object.getTransport_type() + "'," +
-                object.getRespective_id() +
+                "'" + object.getTransport_type() +
                 ")";
     }
 
@@ -98,9 +110,10 @@ public class Transport implements ModelInterface<Transport> {
     public String getUpdateQuery(Transport object, int id) {
         return "UPDATE transport SET " +
                 "transport_id = '" + object.getTransport_id() + "', " +
+                "company_id = '" + object.getCompany_id() + "', " +
+                "respective_id = '" + object.getRespective_id() + "', " +
                 "person_id = '" + object.getPerson_id() + "', " +
-                "transport_type = '" + object.getTransport_type() + "', " +
-                "respective_id = " + object.getRespective_id() + " " +
-                "WHERE transport_id = " + id;
+                "transport_type = '" + object.getTransport_type() +
+                " WHERE transport_id = " + id;
     }
 }

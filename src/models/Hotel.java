@@ -9,7 +9,7 @@ public class Hotel implements ModelInterface<Hotel> {
 
     private int hotel_id;
     private String hotel_name;
-    private String location;
+    private int company_id;
 
     public Hotel() {
     }
@@ -30,18 +30,18 @@ public class Hotel implements ModelInterface<Hotel> {
         this.hotel_name = hotel_name;
     }
 
-    public String getLocation() {
-        return location;
+    public int getCompany_id() {
+        return company_id;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setCompany_id(int company_id) {
+        this.company_id = company_id;
     }
 
-    public Hotel(int hotel_id, String hotel_name, String location) {
+    public Hotel(int hotel_id, String hotel_name, int company_id) {
         this.hotel_id = hotel_id;
         this.hotel_name = hotel_name;
-        this.location = location;
+        this.company_id = company_id;
     }
 
     @Override
@@ -49,45 +49,45 @@ public class Hotel implements ModelInterface<Hotel> {
         return new Hotel(
                 rs.getInt("hotel_id"),
                 rs.getString("hotel_name"),
-                rs.getString("location")
+                rs.getInt("company_id")
         );
     }
 
     @Override
     public String getSelectQuery(int id) {
-        return "SELECT * FROM hotels WHERE hotel_id = " + id;
+        return "SELECT * FROM hotel WHERE hotel_id = " + id;
     }
 
     @Override
     public String getSelectAllQuery() {
-        return "SELECT * FROM hotels";
+        return "SELECT * FROM hotel";
     }
 
     @Override
     public String getDeleteQuery(int id) {
-        return "DELETE FROM hotels WHERE hotel_id = " + id;
+        return "DELETE FROM hotel WHERE hotel_id = " + id;
     }
 
     @Override
     public String getDeleteAllQuery() {
-        return "DELETE FROM hotels";
+        return "DELETE FROM hotel";
     }
 
     @Override
     public String getInsertQuery(Hotel object) {
-        return "INSERT INTO hotels (hotel_id, hotel_name, location) VALUES (" +
-                "'" + object.getHotel_id() + "'," +
+        return "INSERT INTO hotel (hotel_id, hotel_name, company_id) VALUES (" +
+                "" + object.getHotel_id() + "," +
                 "'" + object.getHotel_name() + "'," +
-                "'" + object.getLocation() + "'" +
+                "" + object.getCompany_id() +
                 ")";
     }
 
     @Override
     public String getUpdateQuery(Hotel object, int id) {
-        return "UPDATE hotels SET " +
-                "hotel_id = '" + object.getHotel_id() + "', " +
+        return "UPDATE hotel SET " +
+                "hotel_id = " + object.getHotel_id() + ", " +
                 "hotel_name = '" + object.getHotel_name() + "', " +
-                "location = '" + object.getLocation() + "' " +
-                "WHERE hotel_id = " + id;
+                "company_id = " + object.getCompany_id() +
+                " WHERE hotel_id = " + id;
     }
 }

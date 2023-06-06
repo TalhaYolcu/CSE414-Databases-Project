@@ -1,86 +1,72 @@
 package gui;
 
-import models.Guide;
-
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MainWindow extends JFrame{
-    private JPanel mainPanel;
+public class MainWindow extends JFrame {
     private JButton personButton;
     private JButton guideButton;
-    private JButton generalButton;
+    private JButton companyButton;
 
-    private JPanel mainlayout = new JPanel(new GridBagLayout());
-    private JPanel btnPanel = new JPanel(new GridLayout(10, 1, 10, 5));
-
-    private JButton button1;
     public MainWindow() {
-        // Create the main panel
-        mainPanel.setBorder(new EmptyBorder(2, 3, 2, 3));
-        mainPanel.setPreferredSize(new Dimension(900,900));
-
-        setContentPane(mainPanel);
-
-        setTitle("Travel Booking System");
-        setSize(900,900);
-        setVisible(true);
-
+        initializeComponents();
+        setupLayout();
+        setupListeners();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(400, 200);
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
 
-        mainlayout.setBorder(new EmptyBorder(5, 5, 5, 5));
+    private void initializeComponents() {
+        personButton = new JButton("Person View");
+        guideButton = new JButton("Guide View");
+        companyButton = new JButton("Company View");
+    }
 
-        // Create the buttons
-        personButton = new JButton("Person Views");
-        guideButton = new JButton("Guide Views");
-        generalButton = new JButton("General Views");
+    private void setupLayout() {
+        setLayout(new GridLayout(3, 1));
+        add(personButton);
+        add(guideButton);
+        add(companyButton);
+    }
 
-        btnPanel.add(personButton);
-        btnPanel.add(guideButton);
-        btnPanel.add(generalButton);
-
-        mainlayout.add(btnPanel);
-
-        mainPanel.add(mainlayout,BorderLayout.CENTER);
-
-
-        // Add action listeners to the buttons
+    private void setupListeners() {
         personButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showPersonViews();
+                openPersonView();
             }
         });
 
         guideButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showGuideViews();
+                openGuideView();
             }
         });
-
-        generalButton.addActionListener(new ActionListener() {
+        companyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showGeneralViews();
+                openCompanyView();
             }
         });
+    }
 
+    private void openPersonView() {
+        PersonView personView = new PersonView();
+        personView.setVisible(true);
+    }
 
+    private void openGuideView() {
+        GuideView guideView = new GuideView();
+        guideView.setVisible(true);
     }
-    private void showPersonViews() {
-        mainlayout.setVisible(false);
-        mainPanel.add(new PersonView(mainlayout),BorderLayout.CENTER);
-    }
-    private void showGuideViews() {
-        mainlayout.setVisible(false);
-        mainPanel.add(new GuideView(mainlayout),BorderLayout.CENTER);
-    }
-    private void showGeneralViews() {
-        mainlayout.setVisible(false);
-        mainPanel.add(new GeneralView(mainlayout),BorderLayout.CENTER);
+
+    private void openCompanyView() {
+        CompanyView companyView = new CompanyView();
+        companyView.setVisible(true);
     }
 }

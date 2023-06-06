@@ -4,18 +4,14 @@ import interfaces.ModelInterface;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 public class Flight implements ModelInterface<Flight> {
 
     private int flight_id;
-    private String departure_p;
-    private String aperture_p;
-    private Timestamp departure_t;
-    private Timestamp aperture_t;
-    private int capacity;
+    private int guide_id;
+    private int company_id;
     private int price;
-    private int spare_place;
+    private String flight_info;
 
     public Flight() {
     }
@@ -28,44 +24,20 @@ public class Flight implements ModelInterface<Flight> {
         this.flight_id = flight_id;
     }
 
-    public String getDeparture_p() {
-        return departure_p;
+    public int getGuide_id() {
+        return guide_id;
     }
 
-    public void setDeparture_p(String departure_p) {
-        this.departure_p = departure_p;
+    public void setGuide_id(int guide_id) {
+        this.guide_id = guide_id;
     }
 
-    public String getAperture_p() {
-        return aperture_p;
+    public int getCompany_id() {
+        return company_id;
     }
 
-    public void setAperture_p(String aperture_p) {
-        this.aperture_p = aperture_p;
-    }
-
-    public Timestamp getDeparture_t() {
-        return departure_t;
-    }
-
-    public void setDeparture_t(Timestamp departure_t) {
-        this.departure_t = departure_t;
-    }
-
-    public Timestamp getAperture_t() {
-        return aperture_t;
-    }
-
-    public void setAperture_t(Timestamp aperture_t) {
-        this.aperture_t = aperture_t;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
+    public void setCompany_id(int company_id) {
+        this.company_id = company_id;
     }
 
     public int getPrice() {
@@ -76,84 +48,75 @@ public class Flight implements ModelInterface<Flight> {
         this.price = price;
     }
 
-    public int getSpare_place() {
-        return spare_place;
+    public String getFlight_info() {
+        return flight_info;
     }
 
-    public void setSpare_place(int spare_place) {
-        this.spare_place = spare_place;
+    public void setFlight_info(String flight_info) {
+        this.flight_info = flight_info;
     }
 
-    public Flight(int flight_id, String departure_p, String aperture_p, Timestamp departure_t, Timestamp aperture_t, int capacity, int price, int spare_place) {
+    public Flight(int flight_id, int guide_id, int company_id, int price, String flight_info) {
         this.flight_id = flight_id;
-        this.departure_p = departure_p;
-        this.aperture_p = aperture_p;
-        this.departure_t = departure_t;
-        this.aperture_t = aperture_t;
-        this.capacity = capacity;
+        this.guide_id = guide_id;
+        this.company_id = company_id;
         this.price = price;
-        this.spare_place = spare_place;
+        this.flight_info = flight_info;
     }
 
     @Override
     public Flight exportTableInstance(ResultSet rs) throws SQLException {
         return new Flight(
                 rs.getInt("flight_id"),
-                rs.getString("departure_p"),
-                rs.getString("aperture_p"),
-                rs.getTimestamp("departure_t"),
-                rs.getTimestamp("aperture_t"),
-                rs.getInt("capacity"),
+                rs.getInt("guide_id"),
+                rs.getInt("company_id"),
                 rs.getInt("price"),
-                rs.getInt("spare_place")
+                rs.getString("flight_info")
         );
     }
 
     @Override
     public String getSelectQuery(int id) {
-        return "SELECT * FROM flights WHERE flight_id = " + id;
+        return "SELECT * FROM flight WHERE flight_id = " + id;
+    }
+    public String getSelectQueryCompany(int id) {
+        return "SELECT * FROM flight WHERE company_id = "+id;
     }
 
     @Override
     public String getSelectAllQuery() {
-        return "SELECT * FROM flights";
+        return "SELECT * FROM flight";
     }
 
     @Override
     public String getDeleteQuery(int id) {
-        return "DELETE FROM flights WHERE flight_id = " + id;
+        return "DELETE FROM flight WHERE flight_id = " + id;
     }
 
     @Override
     public String getDeleteAllQuery() {
-        return "DELETE FROM flights";
+        return "DELETE FROM flight";
     }
 
     @Override
     public String getInsertQuery(Flight object) {
-        return "INSERT INTO flights (flight_id, departure_p, aperture_p, departure_t, aperture_t, capacity, price, spare_place) VALUES (" +
-                "'" + object.getFlight_id() + "'," +
-                "'" + object.getDeparture_p() + "'," +
-                "'" + object.getAperture_p() + "'," +
-                "'" + object.getDeparture_t() + "'," +
-                "'" + object.getAperture_t() + "'," +
-                object.getCapacity() + "," +
-                object.getPrice() + "," +
-                object.getSpare_place() +
-                ")";
+        return "INSERT INTO flight (flight_id, guide_id, company_id, price, flight_info) VALUES (" +
+                "" + object.getFlight_id() + "," +
+                "" + object.getGuide_id() + "," +
+                "" + object.getCompany_id() + "," +
+                "" + object.getPrice() + "," +
+                "'" + object.getFlight_info() +
+                "')";
     }
 
     @Override
     public String getUpdateQuery(Flight object, int id) {
-        return "UPDATE flights SET " +
-                "flight_id = '" + object.getFlight_id() + "', " +
-                "departure_p = '" + object.getDeparture_p() + "', " +
-                "aperture_p = '" + object.getAperture_p() + "', " +
-                "departure_t = '" + object.getDeparture_t() + "', " +
-                "aperture_t = '" + object.getAperture_t() + "', " +
-                "capacity = " + object.getCapacity() + ", " +
+        return "UPDATE flight SET " +
+                "flight_id = " + object.getFlight_id() + ", " +
+                "guide_id = " + object.getGuide_id() + ", " +
+                "company_id = " + object.getCompany_id() + ", " +
                 "price = " + object.getPrice() + ", " +
-                "spare_place = " + object.getSpare_place() +
-                " WHERE flight_id = " + id;
+                "flight_info = '" + object.getFlight_info() +
+                "' WHERE flight_id = " + id;
     }
 }

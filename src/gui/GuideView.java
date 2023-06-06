@@ -1,71 +1,267 @@
 package gui;
-
-import db.TravelBookingConnection;
-import listeners.*;
-
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Statement;
 
-public class GuideView extends JPanel {
-    private JButton flights=new JButton("Flights");
-    private JButton bus=new JButton("Bus");
-    private JButton car_rental=new JButton("Car Rental");
-    private JButton hotels=new JButton("Hotel");
-    private JButton tours=new JButton("Tour");
-    private JButton tour_companies=new JButton("Tour Companies");
-    private JTextField query_text_field=new JTextField();
-    private  JButton special_query= new JButton("Special Query");
-    private JButton back=new JButton("Back");
+public class GuideView extends JFrame {
+    private JButton viewToursButton;
+    private JButton addTourButton;
+    private JButton removeTourButton;
+    private JButton viewRentingsButton;
+    private JButton rentCarButton;
+    private JButton cancelCarRentingButton;
+    private JButton viewHotelsButton;
+    private JButton viewHotelRoomsButton;
+    private JButton accommodateButton;
+    private JButton cancelAccommodationButton;
+    private JButton viewFlightsButton;
+    private JButton buyFlightButton;
+    private JButton cancelFlightButton;
+    private JButton viewBusesButton;
+    private JButton buyBusButton;
+    private JButton cancelBusButton;
 
-    private JPanel btnPanel = new JPanel(new GridLayout(20, 1, 10, 5));
-
-    private JPanel backPanel;
-    private Statement st=null;
-
-    public GuideView(JPanel backPanel) {
-        try {
-            st = TravelBookingConnection.getConnection().createStatement();
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        setActionListeners();
-        query_text_field.setPreferredSize(new Dimension(300,30));
-        query_text_field.setToolTipText("Enter your query here");
-        addButtonsToView();
-        this.add(btnPanel);
-        setBorder(new EmptyBorder(5, 5, 5, 5));
-        this.backPanel=backPanel;
-    }
-    private void addButtonsToView() {
-        btnPanel.add(flights);
-        btnPanel.add(bus);
-        btnPanel.add(hotels);
-        btnPanel.add(tours);
-        btnPanel.add(tour_companies);
-        btnPanel.add(query_text_field);
-        btnPanel.add(special_query);
-        btnPanel.add(back);
+    public GuideView() {
+        initializeComponents();
+        setupLayout();
+        setupListeners();
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setTitle("Guide View");
+        setSize(400, 600);
+        setLocationRelativeTo(null);
     }
 
-    private void setActionListeners() {
-        flights.addActionListener(new FlightListener(btnPanel,this,st));
-        bus.addActionListener(new BusListener(btnPanel,this,st));
-        hotels.addActionListener(new HotelListener(btnPanel,this,st));
-        tours.addActionListener(new TourListener(btnPanel, this, st));
-        tour_companies.addActionListener(new TourCompanyListener(btnPanel, this, st));
-        special_query.addActionListener(new SpecialQueryListener(btnPanel,this,st,query_text_field));
+    private void initializeComponents() {
+        viewToursButton = new JButton("View Tours");
+        addTourButton = new JButton("Add a Tour");
+        removeTourButton = new JButton("Remove a Tour");
+        viewRentingsButton = new JButton("View Rentings");
+        rentCarButton = new JButton("Rent a Car");
+        cancelCarRentingButton = new JButton("Cancel Car Renting");
+        viewHotelsButton = new JButton("View Hotels");
+        viewHotelRoomsButton = new JButton("View Hotel Rooms");
+        accommodateButton = new JButton("Accommodate");
+        cancelAccommodationButton = new JButton("Cancel Accommodation");
+        viewFlightsButton = new JButton("View Flights");
+        buyFlightButton = new JButton("Buy a Flight");
+        cancelFlightButton = new JButton("Cancel a Flight");
+        viewBusesButton = new JButton("View Buses");
+        buyBusButton = new JButton("Buy a Bus");
+        cancelBusButton = new JButton("Cancel a Bus");
+    }
 
-        back.addActionListener(new ActionListener() {
+    private void setupLayout() {
+        setLayout(new GridLayout(8, 2));
+        add(viewToursButton);
+        add(addTourButton);
+        add(removeTourButton);
+        add(viewRentingsButton);
+        add(rentCarButton);
+        add(cancelCarRentingButton);
+        add(viewHotelsButton);
+        add(viewHotelRoomsButton);
+        add(accommodateButton);
+        add(cancelAccommodationButton);
+        add(viewFlightsButton);
+        add(buyFlightButton);
+        add(cancelFlightButton);
+        add(viewBusesButton);
+        add(buyBusButton);
+        add(cancelBusButton);
+    }
+
+    private void setupListeners() {
+        viewToursButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                backPanel.setVisible(true);
-                GuideView.this.setVisible(false);
+                viewTours();
             }
         });
+
+        addTourButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addTour();
+            }
+        });
+
+        removeTourButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeTour();
+            }
+        });
+
+        viewRentingsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewRentings();
+            }
+        });
+
+        rentCarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                rentCar();
+            }
+        });
+
+        cancelCarRentingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancelCarRenting();
+            }
+        });
+
+        viewHotelsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewHotels();
+            }
+        });
+
+        viewHotelRoomsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewHotelRooms();
+            }
+        });
+
+        accommodateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                accommodate();
+            }
+        });
+
+        cancelAccommodationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancelAccommodation();
+            }
+        });
+
+        viewFlightsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewFlights();
+            }
+        });
+
+        buyFlightButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                buyFlight();
+            }
+        });
+
+        cancelFlightButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancelFlight();
+            }
+        });
+
+        viewBusesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewBuses();
+            }
+        });
+
+        buyBusButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                buyBus();
+            }
+        });
+
+        cancelBusButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancelBus();
+            }
+        });
+    }
+
+    private void viewTours() {
+        // Implement the logic for viewing all tours
+        JOptionPane.showMessageDialog(this, "Viewing all tours");
+    }
+
+    private void addTour() {
+        // Implement the logic for adding a tour
+        JOptionPane.showMessageDialog(this, "Adding a tour");
+    }
+
+    private void removeTour() {
+        // Implement the logic for removing a tour
+        JOptionPane.showMessageDialog(this, "Removing a tour");
+    }
+
+    private void viewRentings() {
+        // Implement the logic for viewing all rentings
+        JOptionPane.showMessageDialog(this, "Viewing all rentings");
+    }
+
+    private void rentCar() {
+        // Implement the logic for renting a car
+        JOptionPane.showMessageDialog(this, "Renting a car");
+    }
+
+    private void cancelCarRenting() {
+        // Implement the logic for canceling a car renting
+        JOptionPane.showMessageDialog(this, "Canceling car renting");
+    }
+
+    private void viewHotels() {
+        // Implement the logic for viewing all hotels
+        JOptionPane.showMessageDialog(this, "Viewing all hotels");
+    }
+
+    private void viewHotelRooms() {
+        // Implement the logic for viewing hotel rooms
+        JOptionPane.showMessageDialog(this, "Viewing hotel rooms");
+    }
+
+    private void accommodate() {
+        // Implement the logic for accommodating in a hotel room
+        JOptionPane.showMessageDialog(this, "Accommodating in a hotel room");
+    }
+
+    private void cancelAccommodation() {
+        // Implement the logic for canceling accommodation
+        JOptionPane.showMessageDialog(this, "Canceling accommodation");
+    }
+
+    private void viewFlights() {
+        // Implement the logic for viewing all flights
+        JOptionPane.showMessageDialog(this, "Viewing all flights");
+    }
+
+    private void buyFlight() {
+        // Implement the logic for buying a flight
+        JOptionPane.showMessageDialog(this, "Buying a flight");
+    }
+
+    private void cancelFlight() {
+        // Implement the logic for canceling a flight
+        JOptionPane.showMessageDialog(this, "Canceling a flight");
+    }
+
+    private void viewBuses() {
+        // Implement the logic for viewing all buses
+        JOptionPane.showMessageDialog(this, "Viewing all buses");
+    }
+
+    private void buyBus() {
+        // Implement the logic for buying a bus
+        JOptionPane.showMessageDialog(this, "Buying a bus");
+    }
+
+    private void cancelBus() {
+        // Implement the logic for canceling a bus
+        JOptionPane.showMessageDialog(this, "Canceling a bus");
     }
 }
