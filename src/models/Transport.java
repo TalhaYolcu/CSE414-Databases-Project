@@ -97,23 +97,22 @@ public class Transport implements ModelInterface<Transport> {
 
     @Override
     public String getInsertQuery(Transport object) {
-        return "INSERT INTO transport (transport_id, company_id, respective_id, person_id, transport_type) VALUES (" +
-                "'" + object.getTransport_id() + "'," +
-                "'" + object.getCompany_id() + "'," +
-                "'" + object.getRespective_id() + "'," +
-                "'" + object.getPerson_id() + "'," +
+        return "INSERT INTO transport (company_id, respective_id, person_id, transport_type) VALUES (" +
+                "" + object.getCompany_id() + "," +
+                "" + object.getRespective_id() + "," +
+                "" + object.getPerson_id() + "," +
                 "'" + object.getTransport_type() +
-                ")";
+                "')";
     }
 
     @Override
     public String getUpdateQuery(Transport object, int id) {
         return "UPDATE transport SET " +
-                "transport_id = '" + object.getTransport_id() + "', " +
-                "company_id = '" + object.getCompany_id() + "', " +
-                "respective_id = '" + object.getRespective_id() + "', " +
-                "person_id = '" + object.getPerson_id() + "', " +
+                "transport_id = " + object.getTransport_id() + ", " +
+                "company_id = " + object.getCompany_id() + ", " +
+                "respective_id = " + object.getRespective_id() + ", " +
+                "person_id = " + object.getPerson_id() + ", " +
                 "transport_type = '" + object.getTransport_type() +
-                " WHERE transport_id = " + id;
+                "' WHERE transport_id = " + id;
     }
 }

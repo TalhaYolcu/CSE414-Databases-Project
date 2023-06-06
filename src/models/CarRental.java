@@ -109,8 +109,7 @@ public class CarRental implements ModelInterface<CarRental> {
 
     @Override
     public String getInsertQuery(CarRental object) {
-        return "INSERT INTO car_rental (rental_id, car_id, person_id, start_date, end_date) VALUES (" +
-                "" + object.getRental_id() + "," +
+        return "INSERT INTO car_rental (car_id, person_id, start_date, end_date) VALUES (" +
                 "" + object.getCar_id() + "," +
                 "" + object.getPerson_id() + "," +
                 "'" + object.getStart_date() + "'," +

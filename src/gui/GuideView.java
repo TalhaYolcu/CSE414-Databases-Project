@@ -6,8 +6,6 @@ import java.awt.event.ActionListener;
 
 public class GuideView extends JFrame {
     private JButton viewToursButton;
-    private JButton addTourButton;
-    private JButton removeTourButton;
     private JButton viewRentingsButton;
     private JButton rentCarButton;
     private JButton cancelCarRentingButton;
@@ -21,6 +19,9 @@ public class GuideView extends JFrame {
     private JButton viewBusesButton;
     private JButton buyBusButton;
     private JButton cancelBusButton;
+    private JButton joinTourButton;
+    private JButton cancelTourJoiningButton;
+    private JButton viewGuidedToursButton;
 
     public GuideView() {
         initializeComponents();
@@ -33,9 +34,6 @@ public class GuideView extends JFrame {
     }
 
     private void initializeComponents() {
-        viewToursButton = new JButton("View Tours");
-        addTourButton = new JButton("Add a Tour");
-        removeTourButton = new JButton("Remove a Tour");
         viewRentingsButton = new JButton("View Rentings");
         rentCarButton = new JButton("Rent a Car");
         cancelCarRentingButton = new JButton("Cancel Car Renting");
@@ -49,26 +47,34 @@ public class GuideView extends JFrame {
         viewBusesButton = new JButton("View Buses");
         buyBusButton = new JButton("Buy a Bus");
         cancelBusButton = new JButton("Cancel a Bus");
+        viewToursButton = new JButton("View Tours");
+        joinTourButton = new JButton("Join a Tour");
+        cancelTourJoiningButton = new JButton("Cancel Tour Joining");
+        viewGuidedToursButton = new JButton("View Guided Tours");
     }
 
     private void setupLayout() {
-        setLayout(new GridLayout(8, 2));
-        add(viewToursButton);
-        add(addTourButton);
-        add(removeTourButton);
+        setLayout(new GridLayout(6, 3));
+        //TODO copy person
         add(viewRentingsButton);
         add(rentCarButton);
         add(cancelCarRentingButton);
-        add(viewHotelsButton);
-        add(viewHotelRoomsButton);
-        add(accommodateButton);
-        add(cancelAccommodationButton);
         add(viewFlightsButton);
         add(buyFlightButton);
         add(cancelFlightButton);
         add(viewBusesButton);
         add(buyBusButton);
         add(cancelBusButton);
+        add(viewHotelsButton);
+        add(viewHotelRoomsButton);
+        add(accommodateButton);
+        add(cancelAccommodationButton);
+        add(viewToursButton);
+        add(joinTourButton);
+        add(cancelTourJoiningButton);
+        add(viewGuidedToursButton);
+
+
     }
 
     private void setupListeners() {
@@ -76,20 +82,6 @@ public class GuideView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 viewTours();
-            }
-        });
-
-        addTourButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addTour();
-            }
-        });
-
-        removeTourButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                removeTour();
             }
         });
 

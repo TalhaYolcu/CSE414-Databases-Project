@@ -58,7 +58,7 @@ public class CompanyView extends JFrame {
         viewGuideButton=new JButton("Guide Table");
     }
     private void setupLayout() {
-        setLayout(new GridLayout(7,2));
+        setLayout(new GridLayout(6,2));
         add(viewCarButton);
         add(viewCarRentalButton);
         add(viewPersonButton);
@@ -2046,10 +2046,14 @@ public class CompanyView extends JFrame {
 
                         // Perform the necessary SQL insert operation
                         // TODO
+                        Transport transport = new Transport(
+                          Integer.parseInt(transportId),Integer.parseInt(companyId),
+                          Integer.parseInt(respectiveId),Integer.parseInt(personId),
+                                transportType
+                        );
 
-                        String insertQuery = "INSERT INTO transport (transport_id, company_id, respective_id, person_id, transport_type) " +
-                                "VALUES ('" + transportId + "', '" + companyId + "', '" + respectiveId + "', '" +
-                                personId + "', '" + transportType + "')";
+
+                        String insertQuery = transport.getInsertQuery(transport);
                         int insertResult = 0;
                         try {
                             insertResult = st.executeUpdate(insertQuery);
@@ -2104,10 +2108,14 @@ public class CompanyView extends JFrame {
                         String personId = personIdField.getText();
                         String transportType = transportTypeField.getText();
 
+                        Transport transport = new Transport(
+                                Integer.parseInt(transportId),Integer.parseInt(companyId),
+                                Integer.parseInt(respectiveId),Integer.parseInt(personId),
+                                transportType
+                        );
+
                         // Perform the necessary SQL update operation
-                        String updateQuery = "UPDATE transport SET respective_id = '" + respectiveId +
-                                "', person_id = '" + personId + "', transport_type = '" + transportType +
-                                "' WHERE transport_id = '" + transportId + "'";
+                        String updateQuery = transport.getUpdateQuery(transport,Integer.parseInt(transportId));
                         int updateResult = 0;
                         try {
                             updateResult = st.executeUpdate(updateQuery);
@@ -2145,7 +2153,8 @@ public class CompanyView extends JFrame {
                             JOptionPane.YES_NO_OPTION);
                     if (confirm == JOptionPane.YES_OPTION) {
                         // Perform the necessary SQL delete operation
-                        String deleteQuery = "DELETE FROM transport WHERE transport_id = '" + transportId + "'";
+                        Transport transport = new Transport();
+                        String deleteQuery = transport.getDeleteQuery(Integer.parseInt(transportId));
                         int deleteResult = 0;
                         try {
                             deleteResult = st.executeUpdate(deleteQuery);
@@ -2408,7 +2417,7 @@ public class CompanyView extends JFrame {
                     // Create input fields for tour details
                     JTextField tourIdField = new JTextField();
                     JTextField personIdField = new JTextField();
-                    JTextField companyIdField = new JTextField();
+                    JTextField companyIdField = new JTextField(companyID);
                     JTextField accIdField = new JTextField();
                     JTextField transportIdField = new JTextField();
                     JTextField totalPriceField = new JTextField();
@@ -2439,23 +2448,27 @@ public class CompanyView extends JFrame {
                         String transportId = transportIdField.getText();
                         String totalPrice = totalPriceField.getText();
 
+                        //TODO calculate total price
+
                         // Perform the necessary SQL insert operation
                         String insertQuery = "INSERT INTO tour (tour_id, person_id, company_id, acc_id, transport_id, tot_price) VALUES ('" +
                                 tourId + "', '" + personId + "', '" + companyId + "', '" + accId + "', '" + transportId + "', '" + totalPrice + "')";
+                        System.out.println(insertQuery);
+
                         int insertResult = 0;
                         try {
                             insertResult = st.executeUpdate(insertQuery);
+                            if (insertResult > 0) {
+                                JOptionPane.showMessageDialog(CompanyView.this, "Tour inserted successfully.");
+                            } else {
+                                JOptionPane.showMessageDialog(CompanyView.this, "Failed to insert tour.");
+                            }
+
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
+                            JOptionPane.showMessageDialog(CompanyView.this, "Failed to insert tour. :"+ex.getMessage());
                         }
 
-                        if (insertResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Tour inserted successfully.", "Insert Tour",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to insert tour.", "Insert Tour",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
+
                     }
                 }
             });
@@ -2519,6 +2532,9 @@ public class CompanyView extends JFrame {
                         String updateQuery = "UPDATE tour SET tour_id = '" + newTourId + "', person_id = '" + newPersonId +
                                 "', company_id = '" + newCompanyId + "', acc_id = '" + newAccId + "', transport_id = '" +
                                 newTransportId + "', tot_price = '" + newTotalPrice + "' WHERE tour_id = '" + tourId + "'";
+                        System.out.println(updateQuery);
+
+
                         int updateResult = 0;
                         try {
                             updateResult = st.executeUpdate(updateQuery);
@@ -2559,6 +2575,7 @@ public class CompanyView extends JFrame {
 
                         // Perform the necessary SQL delete operation
                         String deleteQuery = "DELETE FROM tour WHERE tour_id = '" + tourId + "'";
+                        System.out.println(deleteQuery);
                         int deleteResult = 0;
                         try {
                             deleteResult = st.executeUpdate(deleteQuery);
@@ -2577,15 +2594,21 @@ public class CompanyView extends JFrame {
                 }
             });
 
-            // Create a panel to hold the tour table and buttons
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.add(new JScrollPane(tourTable), BorderLayout.CENTER);
-            panel.add(insertButton, BorderLayout.PAGE_START);
-            panel.add(updateButton, BorderLayout.LINE_START);
-            panel.add(deleteButton, BorderLayout.LINE_END);
+            // Create a panel to hold the buttons
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.add(insertButton);
+            buttonPanel.add(updateButton);
+            buttonPanel.add(deleteButton);
+
+
+
+            // Create a panel to hold the company table and buttons
+            JPanel contentPanel = new JPanel(new BorderLayout());
+            contentPanel.add(new JScrollPane(tourTable), BorderLayout.CENTER);
+            contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
             // Show the panel to the user
-            JOptionPane.showMessageDialog(this, panel, "View Tours", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(this, contentPanel, "View Tours", JOptionPane.PLAIN_MESSAGE);
         } catch (SQLException e) {
             e.printStackTrace();
         }

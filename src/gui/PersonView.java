@@ -7,22 +7,16 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import models.Accommodation;
-import models.Car;
+import models.*;
 import db.TravelBookingConnection;
-import models.Hotel;
-import models.Room;
 
 public class PersonView extends JFrame {
     private JButton viewRentingsButton;
@@ -79,23 +73,30 @@ public class PersonView extends JFrame {
     }
 
     private void setupLayout() {
-        setLayout(new GridLayout(7, 2));
+        setLayout(new GridLayout(6, 3));
         add(viewRentingsButton);
         add(rentCarButton);
         add(cancelCarRentingButton);
-        add(viewHotelsButton);
-        add(viewHotelRoomsButton);
-        add(accommodateButton);
-        add(cancelAccommodationButton);
         add(viewFlightsButton);
         add(buyFlightButton);
         add(cancelFlightButton);
         add(viewBusesButton);
         add(buyBusButton);
         add(cancelBusButton);
-        //add(viewToursButton);
-        //add(joinTourButton);
-        //add(cancelTourJoiningButton);
+        add(viewHotelsButton);
+        add(viewHotelRoomsButton);
+        add(accommodateButton);
+        add(cancelAccommodationButton);
+        // TODO Tours for person,
+        //  copy the person functions to the guide.
+        //  Use joins,
+        //  Use triggers,
+        //  use views,
+        //  use transactions
+        // TODO Input check
+        add(viewToursButton);
+        add(joinTourButton);
+        add(cancelTourJoiningButton);
     }
 
     private void setupListeners() {
@@ -248,8 +249,8 @@ public class PersonView extends JFrame {
 
     private void rentCar() {
         try {
-            Car carModel = new Car();
-            ResultSet resultSet = st.executeQuery(carModel.getSelectAllQuery()) ;
+            Car carTemp=new Car();
+            ResultSet resultSet = st.executeQuery(carTemp.getSelectAllQuery()) ;
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
 
@@ -277,9 +278,6 @@ public class PersonView extends JFrame {
             JPanel panel = new JPanel(new BorderLayout());
             panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-            // Prompt the user to enter a car ID
-            JTextField carIdField = new JTextField();
-            panel.add(carIdField, BorderLayout.SOUTH);
 
             // Display the table and input field in a dialog
             int option = JOptionPane.showOptionDialog(
@@ -292,19 +290,59 @@ public class PersonView extends JFrame {
                     new Object[]{"OK", "Cancel"},
                     null
             );
-
+            int selectedRow = table.getSelectedRow();
             // Check if the user clicked OK and a car ID is entered
-            if (option == JOptionPane.OK_OPTION && !carIdField.getText().isEmpty()) {
-                int selectedCarId = Integer.parseInt(carIdField.getText());
+            if (option == JOptionPane.OK_OPTION && selectedRow!=-1) {
 
-                // TODO
                 // Perform necessary SQL operations to update the car_rental table
-                //carModel.rentCar(selectedCarId);
 
-                JOptionPane.showMessageDialog(this, "Car rented successfully!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Invalid car ID entered or canceled!");
+                int carId = Integer.parseInt(table.getValueAt(selectedRow,0).toString());
+                int companyId = Integer.parseInt(table.getValueAt(selectedRow,1).toString());
+                String carProperty =table.getValueAt(selectedRow,2).toString();
+                int dailyPrice = Integer.parseInt(table.getValueAt(selectedRow,3).toString());
+
+
+                JPanel datePanel = new JPanel(new GridLayout(3,2));
+                datePanel.add(new JLabel("Person ID: "));
+                JTextField personIdField=new JTextField();
+                datePanel.add(personIdField);
+                datePanel.add(new JLabel("Start date: "));
+                JTextField startD=new JTextField();
+                datePanel.add(startD);
+                datePanel.add(new JLabel("End date: "));
+                JTextField endD=new JTextField();
+                datePanel.add(endD);
+
+
+
+                int result = JOptionPane.showConfirmDialog(null, datePanel, "Car",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                if(result==JOptionPane.OK_OPTION) {
+                    Date startDate = Date.valueOf(startD.getText());
+                    Date endDate = Date.valueOf(endD.getText());
+                    int personId = Integer.parseInt(personIdField.getText());
+                    CarRental carRental = new CarRental(0,carId,personId,startDate,endDate,companyId);
+
+                    String query = carRental.getInsertQuery(carRental);
+                    System.out.println(query);
+                    try {
+                        if(st.executeUpdate(query)!=0) {
+                            JOptionPane.showMessageDialog(null, "Car rental successful.");
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null, "Car rental failed.");
+
+                        }
+                    }
+                    catch (SQLException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Car rental failed : "+ex.getMessage());
+
+                    }
+                }
             }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -324,6 +362,8 @@ public class PersonView extends JFrame {
 
             // Execute the query to retrieve car rental entries for the person
             String query = "SELECT * FROM car_rental WHERE person_id = " + personId;
+            System.out.println(query);
+
             ResultSet resultSet = st.executeQuery(query);
 
             // Check if there are any car rental entries for the person
@@ -355,19 +395,18 @@ public class PersonView extends JFrame {
             JTable table = new JTable(tableModel);
 
             // Display the table in a dialog
-            JOptionPane.showMessageDialog(this, new JScrollPane(table), "Car Rental Entries for Person ID: " + personId, JOptionPane.PLAIN_MESSAGE);
+            int result =  JOptionPane.showConfirmDialog(this, new JScrollPane(table), "Car Rental Entries for Person ID: " + personId, JOptionPane.PLAIN_MESSAGE);
 
-            // Prompt the user to enter a rental ID to delete
-            String rentalIdString = JOptionPane.showInputDialog(this, "Enter Rental ID to delete:");
-            if (rentalIdString == null || rentalIdString.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Invalid Rental ID entered or canceled!");
-                return;
-            }
+
+            int selectedRow = table.getSelectedRow();
+            String rentalIdString = table.getValueAt(selectedRow,0).toString();
 
             int rentalId = Integer.parseInt(rentalIdString);
 
             // Delete the entry from the car_rental table
             String deleteQuery = "DELETE FROM car_rental WHERE rental_id = " + rentalId;
+            System.out.println(deleteQuery);
+
             int deleteCount = st.executeUpdate(deleteQuery);
 
             if (deleteCount > 0) {
@@ -459,6 +498,12 @@ public class PersonView extends JFrame {
             String hotelID = JOptionPane.showInputDialog(this, "Enter Hotel ID:", "View Hotel Rooms",
                     JOptionPane.QUESTION_MESSAGE);
 
+            if(hotelID==null || hotelID.length()==0) {
+                JOptionPane.showMessageDialog(this, "No hotel entered");
+                return;
+
+            }
+
             // Create a RoomModel instance to interact with the room table
             Room roomModel = new Room();
 
@@ -535,62 +580,90 @@ public class PersonView extends JFrame {
             hotelPanel.add(new JScrollPane(hotelTable), BorderLayout.CENTER);
 
             // Display the hotel table in a dialog
-            JOptionPane.showMessageDialog(this, hotelPanel, "Hotels", JOptionPane.PLAIN_MESSAGE);
+            int option =  JOptionPane.showConfirmDialog(this, hotelPanel, "Hotels", JOptionPane.PLAIN_MESSAGE);
+            if(option == JOptionPane.OK_OPTION) {
 
-            // Prompt the user to enter a hotel ID
-            String hotelID = JOptionPane.showInputDialog(this, "Enter Hotel ID:", "View Hotel Rooms",
-                    JOptionPane.QUESTION_MESSAGE);
+                int selectedRowIndex = hotelTable.getSelectedRow();
+                String hotelID = hotelTable.getValueAt(selectedRowIndex,0).toString();
+                String companyId = hotelTable.getValueAt(selectedRowIndex,2).toString();
 
-            // Create a RoomModel instance to interact with the room table
-            Room roomModel = new Room();
+                // Create a RoomModel instance to interact with the room table
+                Room roomModel = new Room();
 
-            // Execute the query to retrieve rooms of the specified hotel ID
-            ResultSet roomResultSet = st.executeQuery(roomModel.getRoomsByHotelIDQuery(hotelID));
+                // Execute the query to retrieve rooms of the specified hotel ID
+                ResultSet roomResultSet = st.executeQuery(roomModel.getRoomsByHotelIDQuery(hotelID));
 
-            // Create a table model to hold the room data
-            ResultSetMetaData roomMetaData = roomResultSet.getMetaData();
-            int roomColumnCount = roomMetaData.getColumnCount();
-            DefaultTableModel roomTableModel = new DefaultTableModel();
+                // Create a table model to hold the room data
+                ResultSetMetaData roomMetaData = roomResultSet.getMetaData();
+                int roomColumnCount = roomMetaData.getColumnCount();
+                DefaultTableModel roomTableModel = new DefaultTableModel();
 
-            // Add column names to the room table model
-            for (int columnIndex = 1; columnIndex <= roomColumnCount; columnIndex++) {
-                roomTableModel.addColumn(roomMetaData.getColumnName(columnIndex));
-            }
-
-            // Add room rows to the table model
-            while (roomResultSet.next()) {
-                Object[] row = new Object[roomColumnCount];
+                // Add column names to the room table model
                 for (int columnIndex = 1; columnIndex <= roomColumnCount; columnIndex++) {
-                    row[columnIndex - 1] = roomResultSet.getObject(columnIndex);
+                    roomTableModel.addColumn(roomMetaData.getColumnName(columnIndex));
                 }
-                roomTableModel.addRow(row);
+
+                // Add room rows to the table model
+                while (roomResultSet.next()) {
+                    Object[] row = new Object[roomColumnCount];
+                    for (int columnIndex = 1; columnIndex <= roomColumnCount; columnIndex++) {
+                        row[columnIndex - 1] = roomResultSet.getObject(columnIndex);
+                    }
+                    roomTableModel.addRow(row);
+                }
+
+                // Create a JTable with the room table model
+                JTable roomTable = new JTable(roomTableModel);
+
+                // Create a panel to hold the room table
+                JPanel roomPanel = new JPanel(new BorderLayout());
+                roomPanel.add(new JScrollPane(roomTable), BorderLayout.CENTER);
+
+                // Display the room table in a dialog
+                int optionRoom =  JOptionPane.showConfirmDialog(this, roomPanel, "Hotel Rooms", JOptionPane.PLAIN_MESSAGE);
+
+                JPanel personIdPanel = new JPanel(new GridLayout(3,2));
+                personIdPanel.add(new JLabel("Person ID: "));
+                JTextField personIdField = new JTextField();
+                personIdPanel.add(personIdField);
+                personIdPanel.add(new JLabel("Check in date: "));
+                JTextField checkInField = new JTextField();
+                personIdPanel.add(checkInField);
+                personIdPanel.add(new JLabel("Check out date: "));
+                JTextField checkOutField = new JTextField();
+                personIdPanel.add(checkOutField);
+
+                int result = JOptionPane.showConfirmDialog(null, personIdPanel, "Flight",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                if(optionRoom==JOptionPane.OK_OPTION && result==JOptionPane.OK_OPTION) {
+                    // Prompt the user to enter a room ID to accommodate
+                    int selectedRoomRow = roomTable.getSelectedRow();
+                    String roomID = roomTable.getValueAt(selectedRoomRow,0).toString();
+                    String personId = personIdField.getText();
+                    Date checkIn = Date.valueOf(checkInField.getText());
+                    Date checkOut = Date.valueOf(checkOutField.getText());
+
+                    // Create an AccommodationModel instance to interact with the accommodation table
+                    Accommodation accommodationModel = new Accommodation(0,
+                            Integer.parseInt(companyId),Integer.parseInt(hotelID),
+                            Integer.parseInt(roomID),Integer.parseInt(personId),
+                            checkIn,checkOut
+                    );
+
+                    //TODO
+                    String insertQuery = accommodationModel.getInsertQuery(accommodationModel);
+                    int rowsAffected = st.executeUpdate(insertQuery);
+
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(this, "Accommodation purchased successfully");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to Accommodation purchase", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+
             }
 
-            // Create a JTable with the room table model
-            JTable roomTable = new JTable(roomTableModel);
-
-            // Create a panel to hold the room table
-            JPanel roomPanel = new JPanel(new BorderLayout());
-            roomPanel.add(new JScrollPane(roomTable), BorderLayout.CENTER);
-
-            // Display the room table in a dialog
-            JOptionPane.showMessageDialog(this, roomPanel, "Hotel Rooms", JOptionPane.PLAIN_MESSAGE);
-
-            // Prompt the user to enter a room ID to accommodate
-            String roomID = JOptionPane.showInputDialog(this, "Enter Room ID to Accommodate:", "Accommodation",
-                    JOptionPane.QUESTION_MESSAGE);
-
-            // Create an AccommodationModel instance to interact with the accommodation table
-            Accommodation accommodationModel = new Accommodation();
-
-            //TODO
-            // Execute the SQL command to insert the accommodation entry
-
-            //String insertQuery = accommodationModel.getInsertQuery(roomID);
-            //st.executeUpdate(insertQuery);
-
-            JOptionPane.showMessageDialog(this, "Accommodation successful!", "Accommodation",
-                    JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -644,12 +717,12 @@ public class PersonView extends JFrame {
             JOptionPane.showMessageDialog(this, accommodationPanel, "Accommodation Entries",
                     JOptionPane.PLAIN_MESSAGE);
 
-            // Prompt the user to enter an accommodation ID to cancel
-            String accommodationID = JOptionPane.showInputDialog(this, "Enter Accommodation ID to Cancel:",
-                    "Cancel Accommodation", JOptionPane.QUESTION_MESSAGE);
+            int selectedRow = accommodationTable.getSelectedRow();
+
+            String accommodationID = accommodationTable.getValueAt(selectedRow,0).toString();
 
             // Execute the SQL command to delete the accommodation entry
-            String deleteQuery = "DELETE FROM accommodation WHERE accommodation_id = " + accommodationID;
+            String deleteQuery = "DELETE FROM accommodation WHERE acc_id = " + Integer.parseInt(accommodationID);
             st.executeUpdate(deleteQuery);
 
             JOptionPane.showMessageDialog(this, "Accommodation cancellation successful!", "Cancel Accommodation",
@@ -739,14 +812,27 @@ public class PersonView extends JFrame {
                 // Get the selected row index
                 int selectedRowIndex = flightTable.getSelectedRow();
 
-                if (selectedRowIndex != -1) {
+                JPanel personIdPanel = new JPanel(new GridLayout(1,2));
+                personIdPanel.add(new JLabel("Person ID: "));
+                JTextField personIdField = new JTextField();
+                personIdPanel.add(personIdField);
+
+                int result = JOptionPane.showConfirmDialog(null, personIdPanel, "Flight",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                if (selectedRowIndex != -1 && result==JOptionPane.OK_OPTION) {
                     // Get the flight_id from the selected row
                     String flightId = flightTable.getValueAt(selectedRowIndex, 0).toString();
+                    String companyId = flightTable.getValueAt(selectedRowIndex,2).toString();
 
                     //TODO
                     // Insert the flight into the transport table
-                    String insertQuery = "INSERT INTO transport (transport_id, company_id, respective_id, person_id, transport_type" +
-                            ") VALUES ('123123', '" + flightId + "')";
+                    Transport transport = new Transport(0,
+                      Integer.parseInt(companyId),Integer.parseInt(flightId),
+                            Integer.parseInt(personIdField.getText()),"flight"
+
+                    );
+                    String insertQuery = transport.getInsertQuery(transport);
 
 
                     int rowsAffected = st.executeUpdate(insertQuery);
@@ -770,12 +856,17 @@ public class PersonView extends JFrame {
             // Prompt the user to enter the person ID
             String personId = JOptionPane.showInputDialog(this, "Enter Person ID:");
 
+            if (personId == null || personId.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Invalid Person ID entered or canceled!");
+                return;
+            }
+
             // Execute the query to retrieve the flights for the given person ID
-            String query = "SELECT * FROM transport WHERE transport_type = 'flight' AND person_id = '" + personId + "'";
+            String query = "SELECT * FROM transport WHERE transport_type = 'flight' AND person_id = " + Integer.parseInt(personId);
             ResultSet resultSet = st.executeQuery(query);
 
             // Check if there are any flights for the given person ID
-            if (!resultSet.next()) {
+            if (!resultSet.isBeforeFirst()) {
                 JOptionPane.showMessageDialog(this, "No flights found for the specified person ID", "No Flights", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
@@ -790,8 +881,6 @@ public class PersonView extends JFrame {
                 tableModel.addColumn(metaData.getColumnName(columnIndex));
             }
 
-            // Add flight rows to the table model
-            resultSet.beforeFirst(); // Move the cursor back to the beginning
             while (resultSet.next()) {
                 Object[] row = new Object[columnCount];
                 for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
@@ -812,11 +901,12 @@ public class PersonView extends JFrame {
 
             // Process the user's selection
             if (option == JOptionPane.OK_OPTION) {
+                int selectedRow = flightTable.getSelectedRow();
                 // Prompt the user to enter the transport ID
-                String transportId = JOptionPane.showInputDialog(this, "Enter Transport ID:");
+                String transportId = flightTable.getValueAt(selectedRow,0).toString();
 
                 // Delete the flight from the transport table
-                String deleteQuery = "DELETE FROM transport WHERE transport_id = '" + transportId + "'";
+                String deleteQuery = "DELETE FROM transport WHERE transport_id = " + Integer.parseInt(transportId);
                 int rowsAffected = st.executeUpdate(deleteQuery);
 
                 if (rowsAffected > 0) {
@@ -907,15 +997,31 @@ public class PersonView extends JFrame {
 
             if (selectedOption == JOptionPane.OK_OPTION) {
                 // Get the selected row from the bus table
+
+                JPanel personIdPanel = new JPanel(new GridLayout(1,2));
+                personIdPanel.add(new JLabel("Person ID"));
+                JTextField personIdField = new JTextField();
+                personIdPanel.add(personIdField);
+
+                int result = JOptionPane.showConfirmDialog(null, personIdPanel, "Bus",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
                 int selectedRow = busTable.getSelectedRow();
-                if (selectedRow != -1) {
+
+
+                if (selectedRow != -1 && result == JOptionPane.OK_OPTION) {
                     // Get the bus ID from the selected row
-                    int busId = (int) busTable.getValueAt(selectedRow, 0);
 
-
-                    // TODO
+                    int busId = Integer.parseInt(busTable.getValueAt(selectedRow, 0).toString());
+                    int companyId = Integer.parseInt(busTable.getValueAt(selectedRow,1).toString());
+                            // TODO
                     // Insert a new entry in the transport table for the purchased bus
-                    String insertQuery = "INSERT INTO transport (transport_type, transport_id) VALUES ('bus', " + busId + ")";
+                    Transport transport = new Transport(0,
+                            companyId,busId,
+                            Integer.parseInt(personIdField.getText()),"bus"
+
+                    );
+                    String insertQuery = transport.getInsertQuery(transport);
                     int rowsAffected = st.executeUpdate(insertQuery);
 
                     if (rowsAffected > 0) {

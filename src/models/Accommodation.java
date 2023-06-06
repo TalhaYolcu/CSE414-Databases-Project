@@ -121,8 +121,7 @@ public class Accommodation implements ModelInterface<Accommodation> {
 
     @Override
     public String getInsertQuery(Accommodation object) {
-        return "INSERT INTO accommodation (acc_id, company_id, hotel_id, room_id, person_id, check_in_date, check_out_date) VALUES (" +
-                "" + object.getAcc_id() + "," +
+        return "INSERT INTO accommodation (company_id, hotel_id, room_id, person_id, check_in_date, check_out_date) VALUES (" +
                 "" + object.getCompany_id() + "," +
                 "" + object.getHotel_id() + "," +
                 "" + object.getRoom_id() + "," +
