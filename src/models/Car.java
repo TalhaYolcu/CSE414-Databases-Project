@@ -71,7 +71,7 @@ public class Car implements ModelInterface<Car> {
 
     @Override
     public String getSelectAllQuery() {
-        return "SELECT * FROM car";
+        return "SELECT * FROM select_car";
     }
 
     @Override

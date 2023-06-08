@@ -94,7 +94,7 @@ public class CarRental implements ModelInterface<CarRental> {
 
     @Override
     public String getSelectAllQuery() {
-        return "SELECT * FROM car_rental";
+        return "SELECT * FROM select_car_rental";
     }
 
     @Override

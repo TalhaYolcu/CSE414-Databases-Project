@@ -106,7 +106,7 @@ public class Accommodation implements ModelInterface<Accommodation> {
 
     @Override
     public String getSelectAllQuery() {
-        return "SELECT * FROM accommodation";
+        return "SELECT * FROM select_accommodation";
     }
 
     @Override

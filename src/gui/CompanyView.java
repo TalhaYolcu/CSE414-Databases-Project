@@ -34,7 +34,7 @@ public class CompanyView extends JFrame {
         setupListeners();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setTitle("Person View");
-        setSize(400, 600);
+        setSize(600, 600);
         setLocationRelativeTo(null);
         try {
             st = TravelBookingConnection.getConnection().createStatement();
@@ -364,8 +364,11 @@ public class CompanyView extends JFrame {
             String company_id = JOptionPane.showInputDialog(this, "Enter company_id:", "View Car Rentals",
                     JOptionPane.QUESTION_MESSAGE);
 
-            String query = "SELECT rental_id, car_rental.car_id, person_id, start_date, end_date FROM car_rental,car WHERE car.company_id = " + company_id + " AND car.car_id = car_rental.car_id";
-
+            //String query = "SELECT rental_id, car_rental.car_id, person_id, start_date, end_date FROM car_rental,car WHERE car.company_id = " + company_id + " AND car.car_id = car_rental.car_id";
+            String query = "SELECT DISTINCT car_rental.rental_id, car_rental.car_id, car_rental.person_id, car_rental.start_date, car_rental.end_date " +
+                    "FROM car_rental " +
+                    "RIGHT JOIN car ON car.car_id = car_rental.car_id " +
+                    "WHERE car.company_id = " + company_id;
 
             ResultSet resultSet = st.executeQuery(query);
 
@@ -1306,7 +1309,12 @@ public class CompanyView extends JFrame {
 
         try {
             // Construct the query to retrieve rooms for the specified company and hotel
-            String query = "SELECT room_id,room.hotel_id,daily_price,room_properties FROM room,hotel WHERE company_id = " + companyID + " AND room.hotel_id = " + hotelID;
+            //String query = "SELECT room_id,room.hotel_id,daily_price,room_properties FROM room,hotel WHERE company_id = " + companyID + " AND room.hotel_id = " + hotelID;
+            String query = "SELECT room.room_id, room.hotel_id, room.daily_price, room.room_properties " +
+                    "FROM room " +
+                    "LEFT JOIN hotel ON room.hotel_id = hotel.hotel_id " +
+                    "WHERE room.hotel_id = "+hotelID;
+            System.out.println(query);
             ResultSet resultSet = st.executeQuery(query);
 
             // Create a table model to hold the room data
@@ -2457,15 +2465,35 @@ public class CompanyView extends JFrame {
 
                         int insertResult = 0;
                         try {
+                            TravelBookingConnection.getConnection().setAutoCommit(false);
+
                             insertResult = st.executeUpdate(insertQuery);
                             if (insertResult > 0) {
+                                TravelBookingConnection.getConnection().commit();
+
                                 JOptionPane.showMessageDialog(CompanyView.this, "Tour inserted successfully.");
                             } else {
+                                TravelBookingConnection.getConnection().rollback();
+
                                 JOptionPane.showMessageDialog(CompanyView.this, "Failed to insert tour.");
                             }
 
                         } catch (SQLException ex) {
                             JOptionPane.showMessageDialog(CompanyView.this, "Failed to insert tour. :"+ex.getMessage());
+                            try {
+                                TravelBookingConnection.getConnection().rollback();
+                            } catch (SQLException exc) {
+                                ex.printStackTrace();
+                            }
+
+                            ex.printStackTrace();
+                        }
+                        finally {
+                            try {
+                                TravelBookingConnection.getConnection().setAutoCommit(true);
+                            } catch (SQLException ex) {
+                                ex.printStackTrace();
+                            }
                         }
 
 
@@ -2687,17 +2715,31 @@ public class CompanyView extends JFrame {
 
                         int insertResult = 0;
                         try {
-                            insertResult = st.executeUpdate(insertQuery);
-                        } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
+                            TravelBookingConnection.getConnection().setAutoCommit(false);
 
-                        if (insertResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Guide inserted successfully.", "Insert Guide",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to insert guide.", "Insert Guide",
-                                    JOptionPane.ERROR_MESSAGE);
+                            insertResult = st.executeUpdate(insertQuery);
+
+                            if (insertResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Guide inserted successfully.", "Insert Guide",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                                TravelBookingConnection.getConnection().commit();
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to insert guide.", "Insert Guide",
+                                        JOptionPane.ERROR_MESSAGE);
+                                TravelBookingConnection.getConnection().rollback();
+
+                            }
+
+                        } catch (SQLException ex) {
+
+                            ex.printStackTrace();
+                        }
+                        finally {
+                            try {
+                                TravelBookingConnection.getConnection().setAutoCommit(true);
+                            } catch (SQLException ex) {
+                                throw new RuntimeException(ex);
+                            }
                         }
                     }
                 }

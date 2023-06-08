@@ -83,7 +83,7 @@ public class Bus implements ModelInterface<Bus> {
 
     @Override
     public String getSelectAllQuery() {
-        return "SELECT * FROM bus";
+        return "SELECT * FROM select_bus";
     }
 
     @Override

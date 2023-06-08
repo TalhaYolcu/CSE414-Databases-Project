@@ -85,7 +85,7 @@ public class Flight implements ModelInterface<Flight> {
 
     @Override
     public String getSelectAllQuery() {
-        return "SELECT * FROM flight";
+        return "SELECT * FROM select_flight";
     }
 
     @Override

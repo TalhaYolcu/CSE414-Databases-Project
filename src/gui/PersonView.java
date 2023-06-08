@@ -33,8 +33,8 @@ public class PersonView extends JFrame {
     private JButton buyBusButton;
     private JButton cancelBusButton;
     private JButton viewToursButton;
-    private JButton joinTourButton;
     private JButton cancelTourJoiningButton;
+    private JButton viewAllPossibilitiesButton;
     private Statement st ;
 
     public PersonView() {
@@ -43,7 +43,7 @@ public class PersonView extends JFrame {
         setupListeners();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setTitle("Person View");
-        setSize(400, 600);
+        setSize(600, 600);
         setLocationRelativeTo(null);
         try {
             st = TravelBookingConnection.getConnection().createStatement();
@@ -59,6 +59,7 @@ public class PersonView extends JFrame {
         cancelCarRentingButton = new JButton("Cancel Car Renting");
         viewHotelsButton = new JButton("View Hotels");
         viewHotelRoomsButton = new JButton("View Hotel Rooms");
+        viewAllPossibilitiesButton = new JButton("View All Possibilites");
         accommodateButton = new JButton("Accommodate");
         cancelAccommodationButton = new JButton("Cancel Accommodation");
         viewFlightsButton = new JButton("View Flights");
@@ -68,7 +69,6 @@ public class PersonView extends JFrame {
         buyBusButton = new JButton("Buy a Bus");
         cancelBusButton = new JButton("Cancel a Bus");
         viewToursButton = new JButton("View Tours");
-        joinTourButton = new JButton("Join a Tour");
         cancelTourJoiningButton = new JButton("Cancel Tour Joining");
     }
 
@@ -85,17 +85,10 @@ public class PersonView extends JFrame {
         add(cancelBusButton);
         add(viewHotelsButton);
         add(viewHotelRoomsButton);
+        add(viewAllPossibilitiesButton);
         add(accommodateButton);
         add(cancelAccommodationButton);
-        // TODO Tours for person,
-        //  copy the person functions to the guide.
-        //  Use joins,
-        //  Use triggers,
-        //  use views,
-        //  use transactions
-        // TODO Input check
         add(viewToursButton);
-        add(joinTourButton);
         add(cancelTourJoiningButton);
     }
 
@@ -135,6 +128,12 @@ public class PersonView extends JFrame {
             }
         });
 
+        viewAllPossibilitiesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewAllPossibilities();
+            }
+        });
         accommodateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -198,12 +197,6 @@ public class PersonView extends JFrame {
             }
         });
 
-        joinTourButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                joinTour();
-            }
-        });
 
         cancelTourJoiningButton.addActionListener(new ActionListener() {
             @Override
@@ -216,6 +209,7 @@ public class PersonView extends JFrame {
     private void viewRentings() {
         try {
             Car carModel = new Car();
+
             ResultSet resultSet = st.executeQuery(carModel.getSelectAllQuery());
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
@@ -324,14 +318,19 @@ public class PersonView extends JFrame {
                     int personId = Integer.parseInt(personIdField.getText());
                     CarRental carRental = new CarRental(0,carId,personId,startDate,endDate,companyId);
 
+
+
                     String query = carRental.getInsertQuery(carRental);
                     System.out.println(query);
                     try {
+                        TravelBookingConnection.getConnection().setAutoCommit(false);
                         if(st.executeUpdate(query)!=0) {
                             JOptionPane.showMessageDialog(null, "Car rental successful.");
+                            TravelBookingConnection.getConnection().commit();
                         }
                         else {
                             JOptionPane.showMessageDialog(null, "Car rental failed.");
+                            TravelBookingConnection.getConnection().rollback();
 
                         }
                     }
@@ -339,6 +338,9 @@ public class PersonView extends JFrame {
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(null, "Car rental failed : "+ex.getMessage());
 
+                    }
+                    finally {
+                        TravelBookingConnection.getConnection().setAutoCommit(true);
                     }
                 }
             }
@@ -407,13 +409,31 @@ public class PersonView extends JFrame {
             String deleteQuery = "DELETE FROM car_rental WHERE rental_id = " + rentalId;
             System.out.println(deleteQuery);
 
-            int deleteCount = st.executeUpdate(deleteQuery);
+            try {
+                TravelBookingConnection.getConnection().setAutoCommit(false);
 
-            if (deleteCount > 0) {
-                JOptionPane.showMessageDialog(this, "Car rental entry deleted successfully!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to delete car rental entry!");
+                int deleteCount = st.executeUpdate(deleteQuery);
+
+                if (deleteCount > 0) {
+                    JOptionPane.showMessageDialog(this, "Car rental entry deleted successfully!");
+                    TravelBookingConnection.getConnection().commit();
+
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete car rental entry!");
+                    TravelBookingConnection.getConnection().rollback();
+
+                }
             }
+            catch (SQLException ex) {
+                ex.printStackTrace();
+                TravelBookingConnection.getConnection().rollback();
+            }
+            finally {
+                TravelBookingConnection.getConnection().setAutoCommit(true);
+
+            }
+
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -543,7 +563,73 @@ public class PersonView extends JFrame {
         }
     }
 
+   private void viewAllPossibilities() {
+       try {
 
+           // Prompt the user to enter a hotel ID
+           String companyID = JOptionPane.showInputDialog(this, "Enter company ID:", "View all possibilites",
+                   JOptionPane.QUESTION_MESSAGE);
+
+           // Create a HotelModel instance to interact with the hotel table
+           /*String query = "SELECT *\n" +
+                   "FROM company\n" +
+                   "FULL OUTER JOIN flight ON company.company_id = flight.company_id\n" +
+                   "FULL OUTER JOIN car ON company.company_id = car.company_id\n" +
+                   "FULL OUTER JOIN bus ON company.company_id = bus.company_id\n" +
+                   "WHERE company.company_id = "+ companyID ;
+*/
+           //MYSQL does not support FULL OUTER JOIN
+           String query = "SELECT *\n" +
+                   "FROM company\n" +
+                   "LEFT JOIN flight ON company.company_id = flight.company_id\n" +
+                   "LEFT JOIN car ON company.company_id = car.company_id\n" +
+                   "LEFT JOIN bus ON company.company_id = bus.company_id\n" +
+                   "UNION\n" +
+                   "SELECT *\n" +
+                   "FROM company\n" +
+                   "RIGHT JOIN flight ON company.company_id = flight.company_id\n" +
+                   "RIGHT JOIN car ON company.company_id = car.company_id\n" +
+                   "RIGHT JOIN bus ON company.company_id = bus.company_id\n" +
+                   "WHERE company.company_id =" + companyID ;
+
+           // Execute the query to retrieve all hotels
+           System.out.println(query);
+           ResultSet resultSet = st.executeQuery(query);
+
+           // Create a table model to hold the hotel data
+           ResultSetMetaData metaData = resultSet.getMetaData();
+           int columnCount = metaData.getColumnCount();
+           DefaultTableModel tableModel = new DefaultTableModel();
+
+           // Add column names to the hotel table model
+           for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+               tableModel.addColumn(metaData.getColumnName(columnIndex));
+           }
+
+           // Add hotel rows to the table model
+           while (resultSet.next()) {
+               Object[] row = new Object[columnCount];
+               for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                   row[columnIndex - 1] = resultSet.getObject(columnIndex);
+               }
+               tableModel.addRow(row);
+           }
+
+           // Create a JTable with the hotel table model
+           JTable hotelTable = new JTable(tableModel);
+
+           // Create a panel to hold the hotel table
+           JPanel hotelPanel = new JPanel(new BorderLayout());
+           hotelPanel.add(new JScrollPane(hotelTable), BorderLayout.CENTER);
+
+           // Display the hotel table in a dialog
+           JOptionPane.showMessageDialog(this, hotelPanel, "Hotels And Rooms", JOptionPane.PLAIN_MESSAGE);
+
+
+       } catch (SQLException ex) {
+           ex.printStackTrace();
+       }
+   }
 
     private void accommodate() {
         try {
@@ -1162,13 +1248,78 @@ public class PersonView extends JFrame {
     }
 
 
-    private void joinTour() {
-        // Implement the logic for joining a tour
-        JOptionPane.showMessageDialog(this, "Joining a tour");
-    }
-
     private void cancelTourJoining() {
-        // Implement the logic for canceling tour joining
-        JOptionPane.showMessageDialog(this, "Canceling tour joining");
-    }
+        try {
+            // Prompt the user to enter the company ID
+            String personID = JOptionPane.showInputDialog(this, "Enter person ID:", "Cancel Tours",
+                    JOptionPane.QUESTION_MESSAGE);
+            String query = "SELECT * FROM tour WHERE person_id = "+personID;
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the tour data
+            DefaultTableModel tableModel = new DefaultTableModel();
+            tableModel.addColumn("Tour ID");
+            tableModel.addColumn("Person ID");
+            tableModel.addColumn("Company ID");
+            tableModel.addColumn("Accommodation ID");
+            tableModel.addColumn("Transport ID");
+            tableModel.addColumn("Total Price");
+
+            // Add tour rows to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[6];
+                row[0] = resultSet.getString("tour_id");
+                row[1] = resultSet.getString("person_id");
+                row[2] = resultSet.getString("company_id");
+                row[3] = resultSet.getString("acc_id");
+                row[4] = resultSet.getString("transport_id");
+                row[5] = resultSet.getString("tot_price");
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the tour table model
+            JTable tourTable = new JTable(tableModel);
+
+            // Create a panel to hold the company table and buttons
+            JPanel contentPanel = new JPanel(new BorderLayout());
+            contentPanel.add(new JScrollPane(tourTable), BorderLayout.CENTER);
+
+
+            int option = JOptionPane.showConfirmDialog(this, contentPanel, "View Tours", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if(option==JOptionPane.OK_OPTION) {
+                // Get the selected row from the tour table
+                int selectedRow = tourTable.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(null, "Please select a tour to cancel.", "Cancel Tour",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                String tourId = tourTable.getValueAt(selectedRow, 0).toString();
+                // Perform the necessary SQL delete operation
+                String deleteQuery = "DELETE FROM tour WHERE tour_id = '" + tourId + "'";
+                System.out.println(deleteQuery);
+
+                int deleteResult = 0;
+                try {
+                    deleteResult = st.executeUpdate(deleteQuery);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    throw new RuntimeException(ex);
+                }
+
+                if (deleteResult > 0) {
+                    JOptionPane.showMessageDialog(null, "Tour deleted successfully.", "Delete Tour",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to delete tour.", "Delete Tour",
+                            JOptionPane.ERROR_MESSAGE);
+
+                }
+            }
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+
+        }
+   }
 }
