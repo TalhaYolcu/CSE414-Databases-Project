@@ -313,14 +313,11 @@ public class GuideView extends JFrame {
                     String query = carRental.getInsertQuery(carRental);
                     System.out.println(query);
                     try {
-                        TravelBookingConnection.getConnection().setAutoCommit(false);
                         if(st.executeUpdate(query)!=0) {
                             JOptionPane.showMessageDialog(null, "Car rental successful.");
-                            TravelBookingConnection.getConnection().commit();
                         }
                         else {
                             JOptionPane.showMessageDialog(null, "Car rental failed.");
-                            TravelBookingConnection.getConnection().rollback();
 
                         }
                     }
@@ -328,9 +325,6 @@ public class GuideView extends JFrame {
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(null, "Car rental failed : "+ex.getMessage());
 
-                    }
-                    finally {
-                        TravelBookingConnection.getConnection().setAutoCommit(true);
                     }
                 }
             }
@@ -400,27 +394,19 @@ public class GuideView extends JFrame {
             System.out.println(deleteQuery);
 
             try {
-                TravelBookingConnection.getConnection().setAutoCommit(false);
 
                 int deleteCount = st.executeUpdate(deleteQuery);
 
                 if (deleteCount > 0) {
                     JOptionPane.showMessageDialog(this, "Car rental entry deleted successfully!");
-                    TravelBookingConnection.getConnection().commit();
 
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to delete car rental entry!");
-                    TravelBookingConnection.getConnection().rollback();
 
                 }
             }
             catch (SQLException ex) {
                 ex.printStackTrace();
-                TravelBookingConnection.getConnection().rollback();
-            }
-            finally {
-                TravelBookingConnection.getConnection().setAutoCommit(true);
-
             }
 
 

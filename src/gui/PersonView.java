@@ -35,6 +35,9 @@ public class PersonView extends JFrame {
     private JButton viewToursButton;
     private JButton cancelTourJoiningButton;
     private JButton viewAllPossibilitiesButton;
+    private JButton addBudgetButton;
+    private JButton removeBudgetButton;
+    private JButton viewAllTransportationButton;
     private Statement st ;
 
     public PersonView() {
@@ -70,10 +73,13 @@ public class PersonView extends JFrame {
         cancelBusButton = new JButton("Cancel a Bus");
         viewToursButton = new JButton("View Tours");
         cancelTourJoiningButton = new JButton("Cancel Tour Joining");
+        addBudgetButton=new JButton("Add Budget");
+        removeBudgetButton = new JButton("Remove Budget");
+        viewAllTransportationButton = new JButton("View all Transportation");
     }
 
     private void setupLayout() {
-        setLayout(new GridLayout(6, 3));
+        setLayout(new GridLayout(7, 3));
         add(viewRentingsButton);
         add(rentCarButton);
         add(cancelCarRentingButton);
@@ -90,6 +96,9 @@ public class PersonView extends JFrame {
         add(cancelAccommodationButton);
         add(viewToursButton);
         add(cancelTourJoiningButton);
+        add(addBudgetButton);
+        add(removeBudgetButton);
+        add(viewAllTransportationButton);
     }
 
     private void setupListeners() {
@@ -204,7 +213,26 @@ public class PersonView extends JFrame {
                 cancelTourJoining();
             }
         });
+        addBudgetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addBudget();
+            }
+        });
+        removeBudgetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeBudget();
+            }
+        });
+        viewAllTransportationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewAllTransportation();
+            }
+        });
     }
+
 
     private void viewRentings() {
         try {
@@ -323,14 +351,11 @@ public class PersonView extends JFrame {
                     String query = carRental.getInsertQuery(carRental);
                     System.out.println(query);
                     try {
-                        TravelBookingConnection.getConnection().setAutoCommit(false);
                         if(st.executeUpdate(query)!=0) {
                             JOptionPane.showMessageDialog(null, "Car rental successful.");
-                            TravelBookingConnection.getConnection().commit();
                         }
                         else {
                             JOptionPane.showMessageDialog(null, "Car rental failed.");
-                            TravelBookingConnection.getConnection().rollback();
 
                         }
                     }
@@ -339,9 +364,7 @@ public class PersonView extends JFrame {
                         JOptionPane.showMessageDialog(null, "Car rental failed : "+ex.getMessage());
 
                     }
-                    finally {
-                        TravelBookingConnection.getConnection().setAutoCommit(true);
-                    }
+
                 }
             }
 
@@ -410,28 +433,21 @@ public class PersonView extends JFrame {
             System.out.println(deleteQuery);
 
             try {
-                TravelBookingConnection.getConnection().setAutoCommit(false);
 
                 int deleteCount = st.executeUpdate(deleteQuery);
 
                 if (deleteCount > 0) {
                     JOptionPane.showMessageDialog(this, "Car rental entry deleted successfully!");
-                    TravelBookingConnection.getConnection().commit();
 
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to delete car rental entry!");
-                    TravelBookingConnection.getConnection().rollback();
 
                 }
             }
             catch (SQLException ex) {
                 ex.printStackTrace();
-                TravelBookingConnection.getConnection().rollback();
             }
-            finally {
-                TravelBookingConnection.getConnection().setAutoCommit(true);
 
-            }
 
 
         } catch (SQLException ex) {
@@ -1322,4 +1338,177 @@ public class PersonView extends JFrame {
 
         }
    }
+
+    private void removeBudget() {
+        try {
+            // Prompt the user to enter the company ID
+            String personID = JOptionPane.showInputDialog(this, "Enter person ID:", "Remove Budget",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            String query = "SELECT budget FROM person WHERE person_id = "+personID;
+
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the bus data
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            DefaultTableModel tableModel = new DefaultTableModel();
+
+            // Add column names to the bus table model
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                tableModel.addColumn(metaData.getColumnName(columnIndex));
+            }
+
+            // Add bus rows to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[columnCount];
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row[columnIndex - 1] = resultSet.getObject(columnIndex);
+                }
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the bus table model
+            JTable budgetTable = new JTable(tableModel);
+            int budget = Integer.parseInt(budgetTable.getValueAt(0,0).toString());
+
+
+            JPanel takeAmountPanel = new JPanel(new GridLayout(2,2));
+            takeAmountPanel.add(new JLabel("Your budget is : "));
+            takeAmountPanel.add(new JLabel(String.valueOf(budget)));
+            takeAmountPanel.add(new JLabel("Enter amount to remove : "));
+            JTextField textFieldAddAmount = new JTextField();
+            takeAmountPanel.add(textFieldAddAmount);
+
+            int option = JOptionPane.showConfirmDialog(null,takeAmountPanel,"Enter amount",
+                    JOptionPane.OK_CANCEL_OPTION);
+
+            if(option==JOptionPane.OK_OPTION) {
+                String removeAmountString = textFieldAddAmount.getText();
+                int removeAmount = Integer.parseInt(removeAmountString);
+                try {
+                    st.executeUpdate("CALL para_cek("+personID+", "+removeAmount+");");
+                    JOptionPane.showMessageDialog(this,"Money removed successfully");
+                }
+                catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this,"Money couldn't removed");
+                    ex.printStackTrace();
+                }
+            }
+        }
+        catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private void addBudget() {
+        try {
+            // Prompt the user to enter the company ID
+            String personID = JOptionPane.showInputDialog(this, "Enter person ID:", "Add Budget",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            String query = "SELECT budget FROM person WHERE person_id = "+personID;
+
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the bus data
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            DefaultTableModel tableModel = new DefaultTableModel();
+
+            // Add column names to the bus table model
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                tableModel.addColumn(metaData.getColumnName(columnIndex));
+            }
+
+            // Add bus rows to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[columnCount];
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row[columnIndex - 1] = resultSet.getObject(columnIndex);
+                }
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the bus table model
+            JTable budgetTable = new JTable(tableModel);
+            int budget = Integer.parseInt(budgetTable.getValueAt(0,0).toString());
+
+
+            JPanel takeAmountPanel = new JPanel(new GridLayout(2,2));
+            takeAmountPanel.add(new JLabel("Your budget is : "));
+            takeAmountPanel.add(new JLabel(String.valueOf(budget)));
+            takeAmountPanel.add(new JLabel("Enter amount to add : "));
+            JTextField textFieldAddAmount = new JTextField();
+            takeAmountPanel.add(textFieldAddAmount);
+
+            int option = JOptionPane.showConfirmDialog(null,takeAmountPanel,"Enter amount",
+                    JOptionPane.OK_CANCEL_OPTION);
+
+            if(option==JOptionPane.OK_OPTION) {
+                String addAmountString = textFieldAddAmount.getText();
+                int addAmount = Integer.parseInt(addAmountString);
+                try {
+                    st.executeUpdate("CALL para_transfer("+personID+", "+addAmount+");");
+                    JOptionPane.showMessageDialog(this,"Money added successfully");
+                }
+                catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this,"Money couldn't added");
+                    ex.printStackTrace();
+                }
+            }
+        }
+        catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private void viewAllTransportation() {
+        try {
+            // Prompt the user to enter the company ID
+            String companyID = JOptionPane.showInputDialog(this, "Enter company ID:", "See all transportations",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            String query = "SELECT bus.trip_info,flight.flight_info\n" +
+                    "FROM bus\n" +
+                    "INNER JOIN flight ON bus.company_id = flight.company_id;";
+
+
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the tour entries
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            DefaultTableModel tableModel = new DefaultTableModel();
+
+            // Add column names to the tour table model
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                tableModel.addColumn(metaData.getColumnName(columnIndex));
+            }
+
+            // Add tour entries to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[columnCount];
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row[columnIndex - 1] = resultSet.getObject(columnIndex);
+                }
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the tour entries table model
+            JTable tourEntriesTable = new JTable(tableModel);
+
+            // Create a panel to hold the tour entries table
+            JPanel tourEntriesPanel = new JPanel(new BorderLayout());
+            tourEntriesPanel.add(new JScrollPane(tourEntriesTable), BorderLayout.CENTER);
+
+            // Display the tour entries table in a dialog
+            JOptionPane.showMessageDialog(this, tourEntriesPanel, "View Tour", JOptionPane.PLAIN_MESSAGE);
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
 }

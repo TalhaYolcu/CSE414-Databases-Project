@@ -52,6 +52,7 @@ public class MainWindow extends JFrame {
             st.execute("CREATE VIEW select_accommodation AS SELECT * FROM accommodation;");
             st.execute("CREATE VIEW select_bus AS SELECT * FROM bus;");
             st.execute("CREATE VIEW select_flight AS SELECT * FROM flight;");
+
         }
         catch (SQLException ex) {
             ex.printStackTrace();

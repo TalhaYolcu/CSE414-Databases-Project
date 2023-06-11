@@ -164,6 +164,7 @@ public class CompanyView extends JFrame {
             String company_id = JOptionPane.showInputDialog(this, "Enter company_id:", "View cars",
                     JOptionPane.QUESTION_MESSAGE);
 
+
             String query = "SELECT * FROM car WHERE company_id = "+company_id;
             ResultSet resultSet = st.executeQuery(query);
 
@@ -2465,38 +2466,20 @@ public class CompanyView extends JFrame {
 
                         int insertResult = 0;
                         try {
-                            TravelBookingConnection.getConnection().setAutoCommit(false);
 
                             insertResult = st.executeUpdate(insertQuery);
                             if (insertResult > 0) {
-                                TravelBookingConnection.getConnection().commit();
 
                                 JOptionPane.showMessageDialog(CompanyView.this, "Tour inserted successfully.");
                             } else {
-                                TravelBookingConnection.getConnection().rollback();
 
                                 JOptionPane.showMessageDialog(CompanyView.this, "Failed to insert tour.");
                             }
 
                         } catch (SQLException ex) {
                             JOptionPane.showMessageDialog(CompanyView.this, "Failed to insert tour. :"+ex.getMessage());
-                            try {
-                                TravelBookingConnection.getConnection().rollback();
-                            } catch (SQLException exc) {
-                                ex.printStackTrace();
-                            }
-
                             ex.printStackTrace();
                         }
-                        finally {
-                            try {
-                                TravelBookingConnection.getConnection().setAutoCommit(true);
-                            } catch (SQLException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-
-
                     }
                 }
             });
@@ -2715,31 +2698,21 @@ public class CompanyView extends JFrame {
 
                         int insertResult = 0;
                         try {
-                            TravelBookingConnection.getConnection().setAutoCommit(false);
 
                             insertResult = st.executeUpdate(insertQuery);
 
                             if (insertResult > 0) {
                                 JOptionPane.showMessageDialog(null, "Guide inserted successfully.", "Insert Guide",
                                         JOptionPane.INFORMATION_MESSAGE);
-                                TravelBookingConnection.getConnection().commit();
                             } else {
                                 JOptionPane.showMessageDialog(null, "Failed to insert guide.", "Insert Guide",
                                         JOptionPane.ERROR_MESSAGE);
-                                TravelBookingConnection.getConnection().rollback();
 
                             }
 
                         } catch (SQLException ex) {
 
                             ex.printStackTrace();
-                        }
-                        finally {
-                            try {
-                                TravelBookingConnection.getConnection().setAutoCommit(true);
-                            } catch (SQLException ex) {
-                                throw new RuntimeException(ex);
-                            }
                         }
                     }
                 }
