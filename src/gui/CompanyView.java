@@ -24,6 +24,8 @@ public class CompanyView extends JFrame {
     private JButton viewCompanyButton;
     private JButton viewTourButton;
     private JButton viewGuideButton;
+    private JButton transferGuideButton;
+    private JButton transferCarRentalButton;
     private Statement st;
 
 
@@ -56,9 +58,11 @@ public class CompanyView extends JFrame {
         viewCompanyButton=new JButton("Company Table");
         viewTourButton=new JButton("Tour Table");
         viewGuideButton=new JButton("Guide Table");
+        transferGuideButton=new JButton("Transfer Guide");
+        transferCarRentalButton=new JButton("Transfer Car Rental");
     }
     private void setupLayout() {
-        setLayout(new GridLayout(6,2));
+        setLayout(new GridLayout(7,2));
         add(viewCarButton);
         add(viewCarRentalButton);
         add(viewPersonButton);
@@ -71,6 +75,9 @@ public class CompanyView extends JFrame {
         add(viewCompanyButton);
         add(viewTourButton);
         add(viewGuideButton);
+        add(transferGuideButton);
+        add(transferCarRentalButton);
+
     }
     private void setupListeners() {
         viewCarButton.addActionListener(new ActionListener() {
@@ -156,6 +163,19 @@ public class CompanyView extends JFrame {
                 viewGuide();
             }
         });
+        transferGuideButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                transferGuide();
+            }
+        });
+        transferCarRentalButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                transferCarRental();
+            }
+        });
+
     }
 
     private void viewCar() {
@@ -2826,6 +2846,7 @@ public class CompanyView extends JFrame {
                 }
             });
 
+
             // Create a panel to hold the buttons
             JPanel buttonPanel = new JPanel(new FlowLayout());
             buttonPanel.add(insertButton);
@@ -2845,5 +2866,208 @@ public class CompanyView extends JFrame {
     }
 
 
+    private void transferGuide() {
+        // Ask the user to enter the company ID
+        String companyId = JOptionPane.showInputDialog(this, "Enter company ID:", "Transfer Guides",
+                JOptionPane.QUESTION_MESSAGE);
 
+        try {
+            // Execute the query to retrieve the guides for the specified company ID
+            String query = "SELECT * FROM guide WHERE company_id = '" + companyId + "'";
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the guide data
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            DefaultTableModel tableModel = new DefaultTableModel();
+
+            // Add column names to the guide table model
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                tableModel.addColumn(metaData.getColumnName(columnIndex));
+            }
+
+            // Add guide rows to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[columnCount];
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row[columnIndex - 1] = resultSet.getObject(columnIndex);
+                }
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the guide table model
+            JTable guideTable = new JTable(tableModel);
+
+            // Create a panel to hold the guide table
+            JPanel guidePanel = new JPanel(new BorderLayout());
+            guidePanel.add(new JScrollPane(guideTable), BorderLayout.CENTER);
+
+            // Create the insert button
+            JButton transferButton = new JButton("Transfer");
+            transferButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Create input fields for guide data
+                    JTextField guideIdField = new JTextField();
+                    JTextField companyIdField = new JTextField();
+
+                    // Create a panel to hold the input fields
+                    JPanel inputPanel = new JPanel(new GridLayout(2, 2));
+                    inputPanel.add(new JLabel("Guide ID:"));
+                    inputPanel.add(guideIdField);
+                    inputPanel.add(new JLabel("New Company ID:"));
+                    inputPanel.add(companyIdField);
+
+
+                    // Show the input panel to the user
+                    int result = JOptionPane.showConfirmDialog(null, inputPanel, "Transfer Guide",
+                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    if (result == JOptionPane.OK_OPTION) {
+                        String guideId = guideIdField.getText();
+                        String companyId = companyIdField.getText();
+
+                        //CALL transfer_guide(guideID,newCompanyID);
+                        String insertQuery = "CALL transfer_guide("+guideId+", "+companyId+")";
+
+                        int insertResult = 0;
+                        try {
+
+                            insertResult = st.executeUpdate(insertQuery);
+
+                            if (insertResult == 0) {
+                                JOptionPane.showMessageDialog(null, "Guide transferred successfully.", "Transfer Guide",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to transfer guide.", "Transfer Guide",
+                                        JOptionPane.ERROR_MESSAGE);
+
+                            }
+
+                        } catch (SQLException ex) {
+
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+
+            // Create a panel to hold the buttons
+            JPanel buttonPanel = new JPanel(new FlowLayout());
+            buttonPanel.add(transferButton);
+
+
+            // Create a panel to hold the guide table and buttons
+            JPanel guideContentPanel = new JPanel(new BorderLayout());
+            guideContentPanel.add(new JScrollPane(guideTable), BorderLayout.CENTER);
+            guideContentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            // Show the panel to the user
+            JOptionPane.showMessageDialog(this, guideContentPanel, "Transfer Guides", JOptionPane.PLAIN_MESSAGE);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    private void transferCarRental() {
+        // Ask the user to enter the company ID
+        String personId = JOptionPane.showInputDialog(this, "Enter personID:", "Tranfer Car Rental",
+                JOptionPane.QUESTION_MESSAGE);
+
+        try {
+            // Execute the query to retrieve the guides for the specified company ID
+            String query = "SELECT * FROM car_rental WHERE person_id = '" + personId + "'";
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the guide data
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            DefaultTableModel tableModel = new DefaultTableModel();
+
+            // Add column names to the guide table model
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                tableModel.addColumn(metaData.getColumnName(columnIndex));
+            }
+
+            // Add guide rows to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[columnCount];
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row[columnIndex - 1] = resultSet.getObject(columnIndex);
+                }
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the guide table model
+            JTable guideTable = new JTable(tableModel);
+
+            // Create a panel to hold the guide table
+            JPanel guidePanel = new JPanel(new BorderLayout());
+            guidePanel.add(new JScrollPane(guideTable), BorderLayout.CENTER);
+
+            // Create the insert button
+            JButton transferButton = new JButton("Transfer");
+            transferButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Create input fields for guide data
+                    JTextField oldIdField = new JTextField();
+                    JTextField newIdField = new JTextField();
+
+                    // Create a panel to hold the input fields
+                    JPanel inputPanel = new JPanel(new GridLayout(2, 2));
+                    inputPanel.add(new JLabel("Old Person ID:"));
+                    inputPanel.add(oldIdField);
+                    inputPanel.add(new JLabel("New Person ID:"));
+                    inputPanel.add(newIdField);
+
+
+                    // Show the input panel to the user
+                    int result = JOptionPane.showConfirmDialog(null, inputPanel, "Transfer Car Rental",
+                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    if (result == JOptionPane.OK_OPTION) {
+                        String oldId = oldIdField.getText();
+                        String newId = newIdField.getText();
+
+                        //CALL transfer_guide(guideID,newCompanyID);
+                        String insertQuery = "CALL transfer_car_rental("+oldId+", "+newId+")";
+
+                        int insertResult = 0;
+                        try {
+
+                            insertResult = st.executeUpdate(insertQuery);
+
+                            if (insertResult == 0) {
+                                JOptionPane.showMessageDialog(null, "Car Rental transferred successfully.", "Transfer Car Rental",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to transfer Car Rental.", "Transfer Car Rental",
+                                        JOptionPane.ERROR_MESSAGE);
+
+                            }
+
+                        } catch (SQLException ex) {
+
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+
+            // Create a panel to hold the buttons
+            JPanel buttonPanel = new JPanel(new FlowLayout());
+            buttonPanel.add(transferButton);
+
+
+            // Create a panel to hold the guide table and buttons
+            JPanel guideContentPanel = new JPanel(new BorderLayout());
+            guideContentPanel.add(new JScrollPane(guideTable), BorderLayout.CENTER);
+            guideContentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            // Show the panel to the user
+            JOptionPane.showMessageDialog(this, guideContentPanel, "Transfer Car Rental", JOptionPane.PLAIN_MESSAGE);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
