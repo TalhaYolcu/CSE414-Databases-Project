@@ -735,7 +735,7 @@ public class PersonView extends JFrame {
                 JTextField checkOutField = new JTextField();
                 personIdPanel.add(checkOutField);
 
-                int result = JOptionPane.showConfirmDialog(null, personIdPanel, "Flight",
+                int result = JOptionPane.showConfirmDialog(null, personIdPanel, "Accommodate",
                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
                 if(optionRoom==JOptionPane.OK_OPTION && result==JOptionPane.OK_OPTION) {
@@ -755,13 +755,22 @@ public class PersonView extends JFrame {
 
                     //TODO
                     String insertQuery = accommodationModel.getInsertQuery(accommodationModel);
-                    int rowsAffected = st.executeUpdate(insertQuery);
 
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Accommodation purchased successfully");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to Accommodation purchase", "Error", JOptionPane.ERROR_MESSAGE);
+                    try {
+                        int rowsAffected = st.executeUpdate(insertQuery);
+
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Accommodation purchased successfully");
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(this, "Failed to Accommodation purchase", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
+                    catch (SQLException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Accommodation failed : "+ex.getMessage());
+                    }
+
                 }
 
             }
@@ -936,14 +945,21 @@ public class PersonView extends JFrame {
                     );
                     String insertQuery = transport.getInsertQuery(transport);
 
+                    try {
+                        int rowsAffected = st.executeUpdate(insertQuery);
 
-                    int rowsAffected = st.executeUpdate(insertQuery);
-
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Flight purchased successfully");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to purchase flight", "Error", JOptionPane.ERROR_MESSAGE);
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Flight purchased successfully");
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(this, "Failed to purchase flight", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
+                    catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(null, "Transportation failed : "+ex.getMessage());
+
+                    }
+
                 }
             }
         } catch (SQLException ex) {
@@ -1124,13 +1140,21 @@ public class PersonView extends JFrame {
 
                     );
                     String insertQuery = transport.getInsertQuery(transport);
-                    int rowsAffected = st.executeUpdate(insertQuery);
 
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Bus purchased successfully!");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to purchase bus.");
+                    try {
+                        int rowsAffected = st.executeUpdate(insertQuery);
+
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Bus purchased successfully!");
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Failed to purchase bus.");
+                        }
                     }
+                    catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(this, "Failed to purchase bus." + ex.getMessage());
+
+                    }
+
                 } else {
                     JOptionPane.showMessageDialog(this, "No bus selected.");
                 }
