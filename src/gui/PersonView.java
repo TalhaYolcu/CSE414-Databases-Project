@@ -424,6 +424,10 @@ public class PersonView extends JFrame {
 
 
             int selectedRow = table.getSelectedRow();
+            if(selectedRow==-1) {
+                return;
+            }
+
             String rentalIdString = table.getValueAt(selectedRow,0).toString();
 
             int rentalId = Integer.parseInt(rentalIdString);
@@ -446,6 +450,8 @@ public class PersonView extends JFrame {
             }
             catch (SQLException ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Failed to delete car rental entry! "+ex.getMessage());
+
             }
 
 
@@ -686,6 +692,9 @@ public class PersonView extends JFrame {
             if(option == JOptionPane.OK_OPTION) {
 
                 int selectedRowIndex = hotelTable.getSelectedRow();
+                if(selectedRowIndex==-1) {
+                    return;
+                }
                 String hotelID = hotelTable.getValueAt(selectedRowIndex,0).toString();
                 String companyId = hotelTable.getValueAt(selectedRowIndex,2).toString();
 
@@ -741,6 +750,11 @@ public class PersonView extends JFrame {
                 if(optionRoom==JOptionPane.OK_OPTION && result==JOptionPane.OK_OPTION) {
                     // Prompt the user to enter a room ID to accommodate
                     int selectedRoomRow = roomTable.getSelectedRow();
+
+                    if(selectedRoomRow==-1) {
+                        return;
+                    }
+
                     String roomID = roomTable.getValueAt(selectedRoomRow,0).toString();
                     String personId = personIdField.getText();
                     Date checkIn = Date.valueOf(checkInField.getText());
@@ -829,15 +843,28 @@ public class PersonView extends JFrame {
                     JOptionPane.PLAIN_MESSAGE);
 
             int selectedRow = accommodationTable.getSelectedRow();
+            if(selectedRow==-1) {
+                return;
+            }
 
             String accommodationID = accommodationTable.getValueAt(selectedRow,0).toString();
 
+
             // Execute the SQL command to delete the accommodation entry
             String deleteQuery = "DELETE FROM accommodation WHERE acc_id = " + Integer.parseInt(accommodationID);
-            st.executeUpdate(deleteQuery);
 
-            JOptionPane.showMessageDialog(this, "Accommodation cancellation successful!", "Cancel Accommodation",
-                    JOptionPane.INFORMATION_MESSAGE);
+            try {
+                st.executeUpdate(deleteQuery);
+
+                JOptionPane.showMessageDialog(this, "Accommodation cancellation successful!", "Cancel Accommodation",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+            catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Accommodation cancellation failed! "+ex.getMessage(), "Cancel Accommodation",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -847,8 +874,9 @@ public class PersonView extends JFrame {
     private void viewFlights() {
         try {
             // Execute the query to retrieve all flights
-            String query = "SELECT * FROM flight";
-            ResultSet resultSet = st.executeQuery(query);
+            Flight flight = new Flight();
+
+            ResultSet resultSet = st.executeQuery(flight.getSelectAllQuery());
 
             // Create a table model to hold the flight data
             ResultSetMetaData metaData = resultSet.getMetaData();
@@ -958,6 +986,7 @@ public class PersonView extends JFrame {
                     catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Transportation failed : "+ex.getMessage());
 
+
                     }
 
                 }
@@ -1020,18 +1049,31 @@ public class PersonView extends JFrame {
             // Process the user's selection
             if (option == JOptionPane.OK_OPTION) {
                 int selectedRow = flightTable.getSelectedRow();
+                if(selectedRow==-1) {
+                    return;
+                }
                 // Prompt the user to enter the transport ID
                 String transportId = flightTable.getValueAt(selectedRow,0).toString();
 
                 // Delete the flight from the transport table
                 String deleteQuery = "DELETE FROM transport WHERE transport_id = " + Integer.parseInt(transportId);
-                int rowsAffected = st.executeUpdate(deleteQuery);
 
-                if (rowsAffected > 0) {
-                    JOptionPane.showMessageDialog(this, "Flight canceled successfully");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to cancel flight", "Error", JOptionPane.ERROR_MESSAGE);
+                try {
+                    int rowsAffected = st.executeUpdate(deleteQuery);
+
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(this, "Flight canceled successfully");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to cancel flight", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
+                catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Failed to cancel flight "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+                }
+
+
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -1041,8 +1083,9 @@ public class PersonView extends JFrame {
     private void viewBuses() {
         try {
             // Execute the query to retrieve all buses
-            String query = "SELECT * FROM bus";
-            ResultSet resultSet = st.executeQuery(query);
+            Bus bus = new Bus();
+
+            ResultSet resultSet = st.executeQuery(bus.getSelectAllQuery());
 
             // Create a table model to hold the bus data
             ResultSetMetaData metaData = resultSet.getMetaData();
@@ -1151,6 +1194,7 @@ public class PersonView extends JFrame {
                         }
                     }
                     catch (SQLException ex) {
+                        ex.printStackTrace();
                         JOptionPane.showMessageDialog(this, "Failed to purchase bus." + ex.getMessage());
 
                     }
@@ -1231,13 +1275,21 @@ public class PersonView extends JFrame {
 
                     // Delete the bus entry from the transport table
                     String deleteQuery = "DELETE FROM transport WHERE transport_id = " + transportId;
-                    int rowsAffected = st.executeUpdate(deleteQuery);
+                    try {
+                        int rowsAffected = st.executeUpdate(deleteQuery);
 
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Bus entry canceled successfully!");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to cancel bus entry.");
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Bus entry canceled successfully!");
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Failed to cancel bus entry.");
+                        }
                     }
+                    catch (SQLException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Failed to cancel bus entry. "+ex.getMessage());
+
+                    }
+
                 } else {
                     JOptionPane.showMessageDialog(this, "No bus entry selected.");
                 }
@@ -1342,19 +1394,21 @@ public class PersonView extends JFrame {
                 int deleteResult = 0;
                 try {
                     deleteResult = st.executeUpdate(deleteQuery);
-                } catch (SQLException ex) {
+                    if (deleteResult > 0) {
+                        JOptionPane.showMessageDialog(null, "Tour deleted successfully.", "Delete Tour",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Failed to delete tour.", "Delete Tour",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                catch (SQLException ex) {
                     ex.printStackTrace();
-                    throw new RuntimeException(ex);
-                }
-
-                if (deleteResult > 0) {
-                    JOptionPane.showMessageDialog(null, "Tour deleted successfully.", "Delete Tour",
-                            JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Failed to delete tour.", "Delete Tour",
+                    JOptionPane.showMessageDialog(null, "Failed to delete tour. "+ex.getMessage(), "Delete Tour",
                             JOptionPane.ERROR_MESSAGE);
-
                 }
+
+
             }
         }
         catch (SQLException ex) {
@@ -1415,7 +1469,7 @@ public class PersonView extends JFrame {
                     JOptionPane.showMessageDialog(this,"Money removed successfully");
                 }
                 catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this,"Money couldn't removed");
+                    JOptionPane.showMessageDialog(this,"Money couldn't removed "+ex.getMessage());
                     ex.printStackTrace();
                 }
             }
@@ -1477,7 +1531,7 @@ public class PersonView extends JFrame {
                     JOptionPane.showMessageDialog(this,"Money added successfully");
                 }
                 catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this,"Money couldn't added");
+                    JOptionPane.showMessageDialog(this,"Money couldn't added "+ex.getMessage());
                     ex.printStackTrace();
                 }
             }

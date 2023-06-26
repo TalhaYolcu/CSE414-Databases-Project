@@ -27,6 +27,9 @@ public class GuideView extends JFrame {
     private JButton cancelTourJoiningButton;
     private JButton viewGuidedTransportsButton;
     private JButton viewAllPossibilitiesButton;
+    private JButton addBudgetButton;
+    private JButton removeBudgetButton;
+    private JButton viewAllTransportationButton;
     private Statement st ;
 
 
@@ -64,10 +67,13 @@ public class GuideView extends JFrame {
         viewToursButton = new JButton("View Tours");
         cancelTourJoiningButton = new JButton("Cancel Tour Joining");
         viewGuidedTransportsButton = new JButton("View Guided Transports");
+        addBudgetButton=new JButton("Add Budget");
+        removeBudgetButton = new JButton("Remove Budget");
+        viewAllTransportationButton = new JButton("View all Transportation");
     }
 
     private void setupLayout() {
-        setLayout(new GridLayout(6, 3));
+        setLayout(new GridLayout(7, 3));
         //TODO copy person
         add(viewRentingsButton);
         add(rentCarButton);
@@ -86,7 +92,9 @@ public class GuideView extends JFrame {
         add(viewToursButton);
         add(cancelTourJoiningButton);
         add(viewGuidedTransportsButton);
-
+        add(addBudgetButton);
+        add(removeBudgetButton);
+        add(viewAllTransportationButton);
     }
 
     private void setupListeners() {
@@ -191,6 +199,36 @@ public class GuideView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 viewGuidedTransports();
+            }
+        });
+        viewAllPossibilitiesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewAllPossibilities();
+            }
+        });
+        cancelTourJoiningButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancelTourJoining();
+            }
+        });
+        addBudgetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addBudget();
+            }
+        });
+        removeBudgetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeBudget();
+            }
+        });
+        viewAllTransportationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewAllTransportation();
             }
         });
 
@@ -385,6 +423,9 @@ public class GuideView extends JFrame {
 
 
             int selectedRow = table.getSelectedRow();
+            if(selectedRow==-1) {
+                return;
+            }
             String rentalIdString = table.getValueAt(selectedRow,0).toString();
 
             int rentalId = Integer.parseInt(rentalIdString);
@@ -646,6 +687,9 @@ public class GuideView extends JFrame {
             if(option == JOptionPane.OK_OPTION) {
 
                 int selectedRowIndex = hotelTable.getSelectedRow();
+                if(selectedRowIndex==-1) {
+                    return;
+                }
                 String hotelID = hotelTable.getValueAt(selectedRowIndex,0).toString();
                 String companyId = hotelTable.getValueAt(selectedRowIndex,2).toString();
 
@@ -701,6 +745,9 @@ public class GuideView extends JFrame {
                 if(optionRoom==JOptionPane.OK_OPTION && result==JOptionPane.OK_OPTION) {
                     // Prompt the user to enter a room ID to accommodate
                     int selectedRoomRow = roomTable.getSelectedRow();
+                    if(selectedRoomRow==-1) {
+                        return;
+                    }
                     String roomID = roomTable.getValueAt(selectedRoomRow,0).toString();
                     String personId = personIdField.getText();
                     Date checkIn = Date.valueOf(checkInField.getText());
@@ -715,13 +762,22 @@ public class GuideView extends JFrame {
 
                     //TODO
                     String insertQuery = accommodationModel.getInsertQuery(accommodationModel);
-                    int rowsAffected = st.executeUpdate(insertQuery);
 
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Accommodation purchased successfully");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to Accommodation purchase", "Error", JOptionPane.ERROR_MESSAGE);
+                    try {
+                        int rowsAffected = st.executeUpdate(insertQuery);
+
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Accommodation purchased successfully");
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Failed to Accommodation purchase", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
+                    catch (SQLException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Failed to Accommodation purchase"+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+                    }
+
                 }
 
             }
@@ -780,15 +836,28 @@ public class GuideView extends JFrame {
                     JOptionPane.PLAIN_MESSAGE);
 
             int selectedRow = accommodationTable.getSelectedRow();
+            if(selectedRow==-1) {
+                return;
+            }
 
             String accommodationID = accommodationTable.getValueAt(selectedRow,0).toString();
 
             // Execute the SQL command to delete the accommodation entry
             String deleteQuery = "DELETE FROM accommodation WHERE acc_id = " + Integer.parseInt(accommodationID);
-            st.executeUpdate(deleteQuery);
 
-            JOptionPane.showMessageDialog(this, "Accommodation cancellation successful!", "Cancel Accommodation",
-                    JOptionPane.INFORMATION_MESSAGE);
+            try {
+                st.executeUpdate(deleteQuery);
+
+                JOptionPane.showMessageDialog(this, "Accommodation cancellation successful!", "Cancel Accommodation",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+            catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Accommodation cancellation failed! " + ex.getMessage() , "Cancel Accommodation",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -798,8 +867,9 @@ public class GuideView extends JFrame {
     private void viewFlights() {
         try {
             // Execute the query to retrieve all flights
-            String query = "SELECT * FROM flight";
-            ResultSet resultSet = st.executeQuery(query);
+            Flight flight = new Flight();
+
+            ResultSet resultSet = st.executeQuery(flight.getSelectAllQuery());
 
             // Create a table model to hold the flight data
             ResultSetMetaData metaData = resultSet.getMetaData();
@@ -873,6 +943,9 @@ public class GuideView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 // Get the selected row index
                 int selectedRowIndex = flightTable.getSelectedRow();
+                if(selectedRowIndex==-1) {
+                    return;
+                }
 
                 JPanel personIdPanel = new JPanel(new GridLayout(1,2));
                 personIdPanel.add(new JLabel("Person ID: "));
@@ -896,13 +969,20 @@ public class GuideView extends JFrame {
                     );
                     String insertQuery = transport.getInsertQuery(transport);
 
+                    try {
 
-                    int rowsAffected = st.executeUpdate(insertQuery);
+                        int rowsAffected = st.executeUpdate(insertQuery);
 
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Flight purchased successfully");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to purchase flight", "Error", JOptionPane.ERROR_MESSAGE);
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Flight purchased successfully");
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Failed to purchase flight", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    catch (SQLException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Failed to purchase flight "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
                     }
                 }
             }
@@ -964,17 +1044,28 @@ public class GuideView extends JFrame {
             // Process the user's selection
             if (option == JOptionPane.OK_OPTION) {
                 int selectedRow = flightTable.getSelectedRow();
+                if(selectedRow==-1) {
+                    return;
+                }
                 // Prompt the user to enter the transport ID
                 String transportId = flightTable.getValueAt(selectedRow,0).toString();
 
                 // Delete the flight from the transport table
                 String deleteQuery = "DELETE FROM transport WHERE transport_id = " + Integer.parseInt(transportId);
-                int rowsAffected = st.executeUpdate(deleteQuery);
+                try {
 
-                if (rowsAffected > 0) {
-                    JOptionPane.showMessageDialog(this, "Flight canceled successfully");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to cancel flight", "Error", JOptionPane.ERROR_MESSAGE);
+                    int rowsAffected = st.executeUpdate(deleteQuery);
+
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(this, "Flight canceled successfully");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to cancel flight", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Failed to cancel flight "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
                 }
             }
         } catch (SQLException ex) {
@@ -985,8 +1076,9 @@ public class GuideView extends JFrame {
     private void viewBuses() {
         try {
             // Execute the query to retrieve all buses
-            String query = "SELECT * FROM bus";
-            ResultSet resultSet = st.executeQuery(query);
+            Bus bus = new Bus();
+            ResultSet resultSet = st.executeQuery(bus.getSelectAllQuery());
+
 
             // Create a table model to hold the bus data
             ResultSetMetaData metaData = resultSet.getMetaData();
@@ -1084,13 +1176,23 @@ public class GuideView extends JFrame {
 
                     );
                     String insertQuery = transport.getInsertQuery(transport);
-                    int rowsAffected = st.executeUpdate(insertQuery);
 
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Bus purchased successfully!");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to purchase bus.");
+
+                    try {
+                        int rowsAffected = st.executeUpdate(insertQuery);
+
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Bus purchased successfully!");
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Failed to purchase bus.");
+                        }
                     }
+                    catch (SQLException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Failed to purchase bus. "+ex.getMessage());
+
+                    }
+
                 } else {
                     JOptionPane.showMessageDialog(this, "No bus selected.");
                 }
@@ -1167,12 +1269,19 @@ public class GuideView extends JFrame {
 
                     // Delete the bus entry from the transport table
                     String deleteQuery = "DELETE FROM transport WHERE transport_id = " + transportId;
-                    int rowsAffected = st.executeUpdate(deleteQuery);
+                    try {
+                        int rowsAffected = st.executeUpdate(deleteQuery);
 
-                    if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Bus entry canceled successfully!");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to cancel bus entry.");
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Bus entry canceled successfully!");
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Failed to cancel bus entry.");
+                        }
+                    }
+                    catch (SQLException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Failed to cancel bus entry. "+ex.getMessage());
+
                     }
                 } else {
                     JOptionPane.showMessageDialog(this, "No bus entry selected.");
@@ -1278,24 +1387,25 @@ public class GuideView extends JFrame {
                 int deleteResult = 0;
                 try {
                     deleteResult = st.executeUpdate(deleteQuery);
-                } catch (SQLException ex) {
+                    if (deleteResult > 0) {
+                        JOptionPane.showMessageDialog(null, "Tour deleted successfully.", "Delete Tour",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(null, "Failed to delete tour.", "Delete Tour",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                catch (SQLException ex) {
                     ex.printStackTrace();
-                    throw new RuntimeException(ex);
-                }
-
-                if (deleteResult > 0) {
-                    JOptionPane.showMessageDialog(null, "Tour deleted successfully.", "Delete Tour",
-                            JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Failed to delete tour.", "Delete Tour",
+                    JOptionPane.showMessageDialog(null, "Failed to delete tour. "+ex.getMessage(), "Delete Tour",
                             JOptionPane.ERROR_MESSAGE);
-
                 }
+
             }
         }
         catch (SQLException ex) {
             ex.printStackTrace();
-
         }
     }
     private void viewGuidedTransports() {
@@ -1306,7 +1416,7 @@ public class GuideView extends JFrame {
                 return;
             }
 
-            String query = "SELECT * FROM flight,bus WHERE " +
+            String query = "SELECT DISTINCT * FROM flight,bus WHERE " +
                     "flight.guide_id = "+guideId + " AND bus.guide_id = "+guideId;
             ResultSet resultSet = st.executeQuery(query);
 
@@ -1347,5 +1457,174 @@ public class GuideView extends JFrame {
             ex.printStackTrace();
         }
     }
+    private void removeBudget() {
+        try {
+            // Prompt the user to enter the company ID
+            String personID = JOptionPane.showInputDialog(this, "Enter person ID:", "Remove Budget",
+                    JOptionPane.QUESTION_MESSAGE);
 
+            String query = "SELECT budget FROM person WHERE person_id = "+personID;
+
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the bus data
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            DefaultTableModel tableModel = new DefaultTableModel();
+
+            // Add column names to the bus table model
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                tableModel.addColumn(metaData.getColumnName(columnIndex));
+            }
+
+            // Add bus rows to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[columnCount];
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row[columnIndex - 1] = resultSet.getObject(columnIndex);
+                }
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the bus table model
+            JTable budgetTable = new JTable(tableModel);
+            int budget = Integer.parseInt(budgetTable.getValueAt(0,0).toString());
+
+
+            JPanel takeAmountPanel = new JPanel(new GridLayout(2,2));
+            takeAmountPanel.add(new JLabel("Your budget is : "));
+            takeAmountPanel.add(new JLabel(String.valueOf(budget)));
+            takeAmountPanel.add(new JLabel("Enter amount to remove : "));
+            JTextField textFieldAddAmount = new JTextField();
+            takeAmountPanel.add(textFieldAddAmount);
+
+            int option = JOptionPane.showConfirmDialog(null,takeAmountPanel,"Enter amount",
+                    JOptionPane.OK_CANCEL_OPTION);
+
+            if(option==JOptionPane.OK_OPTION) {
+                String removeAmountString = textFieldAddAmount.getText();
+                int removeAmount = Integer.parseInt(removeAmountString);
+                try {
+                    st.executeUpdate("CALL para_cek("+personID+", "+removeAmount+");");
+                    JOptionPane.showMessageDialog(this,"Money removed successfully");
+                }
+                catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this,"Money couldn't removed "+ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        }
+        catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private void addBudget() {
+        try {
+            // Prompt the user to enter the company ID
+            String personID = JOptionPane.showInputDialog(this, "Enter person ID:", "Add Budget",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            String query = "SELECT budget FROM person WHERE person_id = "+personID;
+
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the bus data
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            DefaultTableModel tableModel = new DefaultTableModel();
+
+            // Add column names to the bus table model
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                tableModel.addColumn(metaData.getColumnName(columnIndex));
+            }
+
+            // Add bus rows to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[columnCount];
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row[columnIndex - 1] = resultSet.getObject(columnIndex);
+                }
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the bus table model
+            JTable budgetTable = new JTable(tableModel);
+            int budget = Integer.parseInt(budgetTable.getValueAt(0,0).toString());
+
+
+            JPanel takeAmountPanel = new JPanel(new GridLayout(2,2));
+            takeAmountPanel.add(new JLabel("Your budget is : "));
+            takeAmountPanel.add(new JLabel(String.valueOf(budget)));
+            takeAmountPanel.add(new JLabel("Enter amount to add : "));
+            JTextField textFieldAddAmount = new JTextField();
+            takeAmountPanel.add(textFieldAddAmount);
+
+            int option = JOptionPane.showConfirmDialog(null,takeAmountPanel,"Enter amount",
+                    JOptionPane.OK_CANCEL_OPTION);
+
+            if(option==JOptionPane.OK_OPTION) {
+                String addAmountString = textFieldAddAmount.getText();
+                int addAmount = Integer.parseInt(addAmountString);
+                try {
+                    st.executeUpdate("CALL para_transfer("+personID+", "+addAmount+");");
+                    JOptionPane.showMessageDialog(this,"Money added successfully");
+                }
+                catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(this,"Money couldn't added "+ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        }
+        catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    private void viewAllTransportation() {
+        try {
+            // Prompt the user to enter the company ID
+            String companyID = JOptionPane.showInputDialog(this, "Enter company ID:", "See all transportations",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            String query = "SELECT bus.trip_info,flight.flight_info\n" +
+                    "FROM bus\n" +
+                    "INNER JOIN flight ON bus.company_id = flight.company_id;";
+
+
+            ResultSet resultSet = st.executeQuery(query);
+
+            // Create a table model to hold the tour entries
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            DefaultTableModel tableModel = new DefaultTableModel();
+
+            // Add column names to the tour table model
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                tableModel.addColumn(metaData.getColumnName(columnIndex));
+            }
+
+            // Add tour entries to the table model
+            while (resultSet.next()) {
+                Object[] row = new Object[columnCount];
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row[columnIndex - 1] = resultSet.getObject(columnIndex);
+                }
+                tableModel.addRow(row);
+            }
+
+            // Create a JTable with the tour entries table model
+            JTable tourEntriesTable = new JTable(tableModel);
+
+            // Create a panel to hold the tour entries table
+            JPanel tourEntriesPanel = new JPanel(new BorderLayout());
+            tourEntriesPanel.add(new JScrollPane(tourEntriesTable), BorderLayout.CENTER);
+
+            // Display the tour entries table in a dialog
+            JOptionPane.showMessageDialog(this, tourEntriesPanel, "View Tour", JOptionPane.PLAIN_MESSAGE);
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

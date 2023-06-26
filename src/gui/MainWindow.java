@@ -26,7 +26,7 @@ public class MainWindow extends JFrame {
             @Override
             public void windowClosing(WindowEvent we)
             {
-
+/*
                 try {
                     st.execute("DROP VIEW select_car");
                     st.execute("DROP VIEW select_car_rental");
@@ -37,6 +37,8 @@ public class MainWindow extends JFrame {
                 catch (SQLException ex) {
                     ex.printStackTrace();
                 }
+
+ */
                 System.exit(0);
 
             }
@@ -46,13 +48,13 @@ public class MainWindow extends JFrame {
         setVisible(true);
         try {
             st = TravelBookingConnection.getConnection().createStatement();
-            st.execute("CREATE VIEW select_car AS" +
+            /*st.execute("CREATE VIEW select_car AS" +
                     " SELECT car_id,company_id,car_properties,daily_price FROM car;");
             st.execute("CREATE VIEW select_car_rental AS SELECT * FROM car_rental;");
             st.execute("CREATE VIEW select_accommodation AS SELECT * FROM accommodation;");
             st.execute("CREATE VIEW select_bus AS SELECT * FROM bus;");
             st.execute("CREATE VIEW select_flight AS SELECT * FROM flight;");
-
+*/
         }
         catch (SQLException ex) {
             ex.printStackTrace();

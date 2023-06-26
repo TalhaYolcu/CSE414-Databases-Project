@@ -35,7 +35,7 @@ public class CompanyView extends JFrame {
         setupLayout();
         setupListeners();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setTitle("Person View");
+        setTitle("Company View");
         setSize(600, 600);
         setLocationRelativeTo(null);
         try {
@@ -478,7 +478,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Insert error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Insert error" + ex.getMessage());
 
                         }
 
@@ -559,7 +559,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Update error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Update error " +ex.getMessage());
 
                         }
                     }
@@ -614,7 +614,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error "+ex.getMessage());
 
                         }
                     }
@@ -792,7 +792,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Update error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Update error "+ex.getMessage());
 
                         }
 
@@ -840,7 +840,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error "+ex.getMessage());
 
                         }
                     }
@@ -1038,7 +1038,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Update error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Update error "+ex.getMessage());
 
                         }
                     }
@@ -1082,7 +1082,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error"+ex.getMessage());
 
                         }
                     }
@@ -1276,6 +1276,7 @@ public class CompanyView extends JFrame {
                     if (confirmDialogResult == JOptionPane.YES_OPTION) {
                         String hotelId = tableModel.getValueAt(selectedRowIndex, 0).toString();
 
+
                         // TODO: Perform the delete operation
                         // Execute the necessary SQL DELETE command with the specified hotel ID
                         try {
@@ -1404,7 +1405,7 @@ public class CompanyView extends JFrame {
 
                             }
                             else {
-                                JOptionPane.showMessageDialog(CompanyView.this,"Insertion error");
+                                JOptionPane.showMessageDialog(CompanyView.this,"Insertion error ");
 
                             }
                         }
@@ -1480,7 +1481,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Update error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Update error "+ex.getMessage());
 
                         }
                     }
@@ -1525,7 +1526,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error "+ex.getMessage());
 
                         }
                     }
@@ -1713,7 +1714,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Update error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Update error "+ex.getMessage());
 
                         }
                     }
@@ -1756,7 +1757,7 @@ public class CompanyView extends JFrame {
                         }
                         catch (SQLException ex) {
                             ex.printStackTrace();
-                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error");
+                            JOptionPane.showMessageDialog(CompanyView.this,"Delete error "+ex.getMessage());
 
                         }
                     }
@@ -1860,17 +1861,20 @@ public class CompanyView extends JFrame {
                         int insertResult = 0;
                         try {
                             insertResult = st.executeUpdate(insertQuery);
+                            if (insertResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Bus inserted successfully.", "Insert Bus",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to insert bus.", "Insert Bus",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (insertResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Bus inserted successfully.", "Insert Bus",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to insert bus.", "Insert Bus",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to insert bus. "+ex.getMessage(), "Insert Bus",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -1930,17 +1934,19 @@ public class CompanyView extends JFrame {
                         int updateResult = 0;
                         try {
                             updateResult = st.executeUpdate(updateQuery);
+                            if (updateResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Bus updated successfully.", "Update Bus",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to update bus.", "Update Bus",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (updateResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Bus updated successfully.", "Update Bus",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to update bus.", "Update Bus",
+                            JOptionPane.showMessageDialog(null, "Failed to update bus. "+ex.getMessage(), "Update Bus",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -1969,17 +1975,20 @@ public class CompanyView extends JFrame {
                         int deleteResult = 0;
                         try {
                             deleteResult = st.executeUpdate(deleteQuery);
+                            if (deleteResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Bus deleted successfully.", "Delete Bus",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to delete bus.", "Delete Bus",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (deleteResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Bus deleted successfully.", "Delete Bus",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to delete bus.", "Delete Bus",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to delete bus. "+ex.getMessage(), "Delete Bus",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2086,17 +2095,20 @@ public class CompanyView extends JFrame {
                         int insertResult = 0;
                         try {
                             insertResult = st.executeUpdate(insertQuery);
+                            if (insertResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Transport inserted successfully.", "Insert Transport",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to insert transport.", "Insert Transport",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (insertResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Transport inserted successfully.", "Insert Transport",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to insert transport.", "Insert Transport",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to insert transport. "+ex.getMessage(), "Insert Transport",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2148,17 +2160,20 @@ public class CompanyView extends JFrame {
                         int updateResult = 0;
                         try {
                             updateResult = st.executeUpdate(updateQuery);
+                            if (updateResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Transport updated successfully.", "Update Transport",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to update transport.", "Update Transport",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (updateResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Transport updated successfully.", "Update Transport",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to update transport.", "Update Transport",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to update transport. "+ex.getMessage(), "Update Transport",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2187,17 +2202,20 @@ public class CompanyView extends JFrame {
                         int deleteResult = 0;
                         try {
                             deleteResult = st.executeUpdate(deleteQuery);
+                            if (deleteResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Transport deleted successfully.", "Delete Transport",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to delete transport.", "Delete Transport",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (deleteResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Transport deleted successfully.", "Delete Transport",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to delete transport.", "Delete Transport",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to delete transport. "+ex.getMessage(), "Delete Transport",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2279,17 +2297,20 @@ public class CompanyView extends JFrame {
                         int insertResult = 0;
                         try {
                             insertResult = st.executeUpdate(insertQuery);
+                            if (insertResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Company inserted successfully.", "Insert Company",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to insert company.", "Insert Company",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (insertResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Company inserted successfully.", "Insert Company",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to insert company.", "Insert Company",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to insert company. "+ex.getMessage(), "Insert Company",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2330,17 +2351,20 @@ public class CompanyView extends JFrame {
                         int updateResult = 0;
                         try {
                             updateResult = st.executeUpdate(updateQuery);
+                            if (updateResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Company updated successfully.", "Update Company",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to update company.", "Update Company",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (updateResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Company updated successfully.", "Update Company",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to update company.", "Update Company",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to update company. "+ex.getMessage(), "Update Company",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2369,17 +2393,22 @@ public class CompanyView extends JFrame {
                         int deleteResult = 0;
                         try {
                             deleteResult = st.executeUpdate(deleteQuery);
-                        } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
+                            if (deleteResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Company deleted successfully.", "Delete Company",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(null, "Failed to delete company.", "Delete Company",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         }
-
-                        if (deleteResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Company deleted successfully.", "Delete Company",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to delete company.", "Delete Company",
+                        catch (SQLException ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to delete company. "+ex.getMessage(), "Delete Company",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2489,9 +2518,9 @@ public class CompanyView extends JFrame {
 
                             insertResult = st.executeUpdate(insertQuery);
                             if (insertResult > 0) {
-
                                 JOptionPane.showMessageDialog(CompanyView.this, "Tour inserted successfully.");
-                            } else {
+                            }
+                            else {
 
                                 JOptionPane.showMessageDialog(CompanyView.this, "Failed to insert tour.");
                             }
@@ -2569,17 +2598,21 @@ public class CompanyView extends JFrame {
                         int updateResult = 0;
                         try {
                             updateResult = st.executeUpdate(updateQuery);
-                        } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
+                            if (updateResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Tour updated successfully.", "Update Tour",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to update tour.", "Update Tour",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         }
-
-                        if (updateResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Tour updated successfully.", "Update Tour",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to update tour.", "Update Tour",
+                        catch (SQLException ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to update tour. "+ex.getMessage(), "Update Tour",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2610,17 +2643,20 @@ public class CompanyView extends JFrame {
                         int deleteResult = 0;
                         try {
                             deleteResult = st.executeUpdate(deleteQuery);
+                            if (deleteResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Tour deleted successfully.", "Delete Tour",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to delete tour.", "Delete Tour",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (deleteResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Tour deleted successfully.", "Delete Tour",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to delete tour.", "Delete Tour",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to delete tour. "+ex.getMessage(), "Delete Tour",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2733,6 +2769,8 @@ public class CompanyView extends JFrame {
                         } catch (SQLException ex) {
 
                             ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to insert guide. "+ex.getMessage(), "Insert Guide",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
@@ -2791,17 +2829,20 @@ public class CompanyView extends JFrame {
                         int updateResult = 0;
                         try {
                             updateResult = st.executeUpdate(updateQuery);
+                            if (updateResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Guide updated successfully.", "Update Guide",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to update guide.", "Update Guide",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (updateResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Guide updated successfully.", "Update Guide",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to update guide.", "Update Guide",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to update guide. "+ex.getMessage(), "Update Guide",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2831,17 +2872,20 @@ public class CompanyView extends JFrame {
                         int deleteResult = 0;
                         try {
                             deleteResult = st.executeUpdate(deleteQuery);
+                            if (deleteResult > 0) {
+                                JOptionPane.showMessageDialog(null, "Guide deleted successfully.", "Delete Guide",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Failed to delete guide.", "Delete Guide",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        }
-
-                        if (deleteResult > 0) {
-                            JOptionPane.showMessageDialog(null, "Guide deleted successfully.", "Delete Guide",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Failed to delete guide.", "Delete Guide",
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to delete guide. "+ex.getMessage(), "Delete Guide",
                                     JOptionPane.ERROR_MESSAGE);
                         }
+
+
                     }
                 }
             });
@@ -2946,6 +2990,8 @@ public class CompanyView extends JFrame {
                         } catch (SQLException ex) {
 
                             ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to transfer guide. "+ex.getMessage(), "Transfer Guide",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
@@ -3048,6 +3094,8 @@ public class CompanyView extends JFrame {
                         } catch (SQLException ex) {
 
                             ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to transfer Car Rental. "+ex.getMessage(), "Transfer Car Rental",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
